@@ -259,7 +259,8 @@ if maximized and applicationRoundBottom:
 
     pixels[width - 1, height - 3] = (0, 0, 0, 0)
 
-if not window.get_decorations() & gdk.DECOR_BORDER:
+# Maximized windows or those with a custom title bar shouldn't have an extra row and column of pixels
+if maximized or hascustomtitlebar:
     image = image.crop((0, 0, width - 1, height - 1))
 
 print "Custom titlebar:", hascustomtitlebar
