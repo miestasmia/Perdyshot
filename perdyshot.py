@@ -35,7 +35,17 @@ cwd = os.getcwd()
 parser = argparse.ArgumentParser(description = 'Take a perdy screenshot.')
 
 parser.add_argument('--delay', help = 'the delay in seconds before capturing the active window (default: 1)', default = 1, type = float)
+
 parser.add_argument('-f', '--file', help = 'the name of the output file (default: screenshot.png)', default = 'screenshot.png')
+
+parser.add_argument('--round-top', help = "overrides setting in perdyshot.conf", default = None, action = 'store_true')
+parser.add_argument('--no-round-top', help = "overrides setting in perdyshot.conf", dest = 'round_top', action = 'store_false')
+
+parser.add_argument('--round-bottom', help = "overrides setting in perdyshot.conf", type = int, choices = [0, 1, 2], default = None)
+
+parser.add_argument('--size-bugged', help = "overrides setting in perdyshot.conf", default = None, action = 'store_true')
+parser.add_argument('--no-size-bugged', help = "overrides setting in perdyshot.conf", dest = 'size_bugged', action = 'store_false')
+
 parser.add_argument('-v', '--version', action = 'version', version = version)
 
 args = vars(parser.parse_args())
@@ -181,7 +191,8 @@ print "\troundTop:",    settings['roundTop']
 print "\troundBottom:", settings['roundBottom']
 
 
-if settings['sizeBugged']:
+sizeBugged = args['size_bugged'] if args['size_bugged'] != None else settings['sizeBugged']
+if sizeBugged:
     if not maximized:
         image = image.crop((50, 38, width - 51, height - 62))
         width -= 51 + 50
@@ -197,7 +208,8 @@ if maximized or hascustomtitlebar:
 pixels = image.load()
 
 # Top
-if settings['roundTop']:
+roundTop = args['round_top'] if args['round_top'] != None else settings['roundTop']
+if(roundTop):
     # Left
     pixels[0, 0] =     (0,   0,   0,   0)
     pixels[1, 0] =     (0,   0,   0,   0)
@@ -249,7 +261,8 @@ if settings['roundTop']:
         pixels[width -  1, 5] = (117, 117, 117, 255)
 
 # Bottom
-if settings['roundBottom'] == 1 or (settings['roundBottom'] == 2 and maximized):
+roundBottom = args['round_bottom'] if args['round_bottom'] != None else settings['roundBottom']
+if roundBottom == 1 or (roundBottom == 2 and maximized):
     # Left
     pixels[0, height - 1] = (0, 0, 0, 0)
     pixels[1, height - 1] = (0, 0, 0, 0)
