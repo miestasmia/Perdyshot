@@ -15,7 +15,5 @@ To use Perdyshot, grab the latest release (or clone this repository for bleeding
 
 ## TODO
 * Implement support for other selection types
-* Implement command-line options
-* Look into optimising the post-processing (Pillow's gaussian blur is horrendously slow)
 * Improve corner rounding (proper anti-aliasing?)
 * GUI

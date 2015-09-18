@@ -7,7 +7,10 @@ from validate import Validator
 
 from gtk import gdk
 
-from PIL import Image, ImageFilter
+# We use PIL for simple tasks and ImageMagick for computationally-heavy tasks
+from PIL import Image
+
+import subprocess
 
 import time
 
@@ -16,6 +19,9 @@ import sys
 import os
 
 import argparse
+
+# Make sure ImageMagick is installed
+subprocess.check_call('which convert > /dev/null', shell = True)
 
 dir = os.path.dirname(os.path.realpath(__file__))
 cwd = os.getcwd()
@@ -52,43 +58,6 @@ def pixbuf2image(pix):
         mode = "RGBA"
     im = Image.frombytes(mode, (w, h), data, "raw", mode, stride)
     return im
-
-# https://en.wikibooks.org/wiki/Python_Imaging_Library/Drop_Shadows
-# Modified to support alpha
-def makeShadow(image, radius, border, offset, backgroundColour, shadowColour):
-    # image: base image to give a drop shadow
-    # iterations: number of times to apply the blur filter to the shadow
-    # border: border to give the image to leave space for the shadow
-    # offset: offset of the shadow as [x,y]
-    # backgroundCOlour: colour of the background
-    # shadowColour: colour of the drop shadow
-    
-    #Calculate the size of the shadow's image
-    fullWidth  = image.size[0] + abs(offset[0]) + 2*border
-    fullHeight = image.size[1] + abs(offset[1]) + 2*border
-    
-    #Create the shadow's image. Match the parent image's mode.
-    shadow = Image.new(image.mode, (fullWidth, fullHeight), backgroundColour)
-    
-    # Place the shadow, with the required offset
-    shadowLeft = border + max(offset[0], 0) #if <0, push the rest of the image right
-    shadowTop  = border + max(offset[1], 0) #if <0, push the rest of the image down
-    #Paste in the constant colour
-    shadow.paste(shadowColour, 
-                [shadowLeft, shadowTop,
-                 shadowLeft + image.size[0],
-                 shadowTop  + image.size[1] ], image)
-    
-    # Apply the BLUR filter repeatedly
-    shadow = shadow.filter(ImageFilter.GaussianBlur(radius = radius))
-
-    # Paste the original image on top of the shadow 
-    imgLeft = border - min(offset[0], 0) #if the shadow offset was <0, push right
-    imgTop  = border - min(offset[1], 0) #if the shadow offset was <0, push down
-    shadow.paste(image, (imgLeft, imgTop), image)
-
-    return shadow
-
 
 # Get the root window
 root = gdk.screen_get_default()
@@ -296,15 +265,13 @@ if settings['roundBottom'] == 1 or (settings['roundBottom'] == 2 and maximized):
 
 print "Custom titlebar:", hascustomtitlebar
 
+# Save the image with PIL for modification with ImageMagick
+image.save('/tmp/perdyshot.png', 'png')
 
-# Add a nice drop shadow
-image = makeShadow(image, 30, 64, (0, 15), (255, 255, 255), (180, 180, 180))
+# Apply a shadow and save the image to the user-supplied path
+subprocess.check_output("convert /tmp/perdyshot.png -bordercolor none -border 64x64 -repage +48+48 \( +clone -background \#949494 -shadow 100x24+0+32 \) +swap -background none -mosaic " + args['file'], shell = True)
 
 totalTime = time.time()
 print "\nScreenshot time: %.2f seconds" % (partialTime - startTime)
 print "Post-processing time: %.2f seconds" % (totalTime - partialTime)
 print "Total time: %.2f seconds" % (totalTime - startTime)
-
-
-
-image.save(args['file'], 'png')
