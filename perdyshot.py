@@ -157,20 +157,31 @@ WM_CLASS = window.property_get('WM_CLASS')[2].split('\x00')[0]
 
 # Read the config file and figure out the settings
 settings = {}
-app = config['Applications'][WM_CLASS]
+if WM_CLASS in config['Applications']:
+    app = config['Applications'][WM_CLASS]
 
-settings['sizeBugged'] = app['sizeBugged']
+    settings['sizeBugged'] = app['sizeBugged']
 
-settings['roundTop'] = app['roundTop']
-if settings['roundTop'] == None:
+    settings['roundTop'] = app['roundTop']
+    if settings['roundTop'] == None:
+        settings['roundTop'] = not hascustomtitlebar
+
+    settings['roundBottom'] = app['roundBottom']
+    if settings['roundBottom'] == None:
+        if hascustomtitlebar:
+            settings['roundBottom'] = 0
+        else:
+            settings['roundBottom'] = 2
+else:
+    settings['sizeBugged'] = False
+
     settings['roundTop'] = not hascustomtitlebar
 
-settings['roundBottom'] = app['roundBottom']
-if settings['roundBottom'] == None:
     if hascustomtitlebar:
         settings['roundBottom'] = 0
     else:
         settings['roundBottom'] = 2
+
 
 print "WM_CLASS:", WM_CLASS
 
