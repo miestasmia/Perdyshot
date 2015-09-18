@@ -18,5 +18,4 @@ To use Perdyshot, grab the latest release (or clone this repository for bleeding
 * Implement command-line options
 * Look into optimising the post-processing (Pillow's gaussian blur is horrendously slow)
 * Improve corner rounding (proper anti-aliasing?)
-* Implement proper configuration system
 * GUI
