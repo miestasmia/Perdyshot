@@ -21,7 +21,7 @@ import os
 import argparse
 
 
-version = 'Perdyshot v0.5'
+version = 'Perdyshot v0.5.1'
 
 
 
