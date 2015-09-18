@@ -15,19 +15,40 @@ sizeBuggedApplications = [
 "pantheon-terminal",
 "files",
 "switchboard",
-"evince"
+"evince",
+"file-roller",
+"pantheon-calculator",
+"shotwell",
+"noise",
+"audience"
 ]
-roundTopApplications = [
+customRoundTopApplications = [
 "pantheon-terminal",
 "files",
 "switchboard",
-"evince"
+"evince",
+"file-roller",
+"pantheon-calculator",
+"shotwell",
+"noise",
+"audience"
 ]
-roundBottomApplications = [
+noRoundBottomApplications = [
+"sublime_text"
+]
+customRoundBottomApplications = [
 "pantheon-terminal",
 "files",
 "switchboard",
-"evince"
+"evince",
+"file-roller",
+"maya-calendar",
+"shotwell",
+"audience"
+]
+customAlwaysRoundBottomApplications = [
+"pantheon-calculator",
+"noise"
 ]
 # CONFIG END
 
@@ -101,17 +122,8 @@ print "Screen size: %sx%s" % screenSize
 window = root.get_active_window()
 
 if window == None:
+    print "Failed to capture window, exiting."
     sys.exit()
-
-# Get its WM_CLASS
-WM_CLASS = window.property_get('WM_CLASS')[2].split('\x00')[0]
-
-applicationSizeBugged  = WM_CLASS in sizeBuggedApplications
-applicationRoundTop    = WM_CLASS in roundTopApplications
-applicationRoundBottom = WM_CLASS in roundBottomApplications
-
-
-print "WM_CLASS:", WM_CLASS
 
 # And its geometry
 x, y = window.get_origin()
@@ -133,6 +145,20 @@ print "Coordinates: (%s, %s)" % (x, y)
 print "Window decoration coordinates: (%s, %s)" % (y, decoY)
 print "Window decorations:", window.get_decorations()
 print "Borders requested:", not not (window.get_decorations() & gdk.DECOR_BORDER)
+
+# Get its WM_CLASS
+WM_CLASS = window.property_get('WM_CLASS')[2].split('\x00')[0]
+
+applicationSizeBugged  = WM_CLASS in sizeBuggedApplications
+applicationRoundTop    = not hascustomtitlebar or WM_CLASS in customRoundTopApplications
+if hascustomtitlebar:
+    applicationRoundBottomMaximized = WM_CLASS in customRoundBottomApplications
+else:
+    applicationRoundBottomMaximized = not(WM_CLASS in noRoundBottomApplications)
+applicationRoundBottomAlways = WM_CLASS in customAlwaysRoundBottomApplications
+
+
+print "WM_CLASS:", WM_CLASS
 
 # Add the dimensions of the decorations to window dimensions
 width  += x - decoX
@@ -182,11 +208,17 @@ if applicationSizeBugged:
         width -= 51 + 50
         height -= 62 + 38
 
+# Maximized windows or those with a custom title bar shouldn't have an extra row and column of pixels
+if maximized or hascustomtitlebar:
+    image = image.crop((0, 0, width - 1, height - 1))
+    width -= 1
+    height -= 1
+
 # Fix borders
 pixels = image.load()
 
 # Top
-if not hascustomtitlebar or applicationRoundTop:
+if applicationRoundTop:
     # Left
     pixels[0, 0] =     (0,   0,   0,   0)
     pixels[1, 0] =     (0,   0,   0,   0)
@@ -238,7 +270,7 @@ if not hascustomtitlebar or applicationRoundTop:
         pixels[width -  1, 5] = (117, 117, 117, 255)
 
 # Bottom
-if maximized and applicationRoundBottom:
+if applicationRoundBottomAlways or (maximized and applicationRoundBottomMaximized):
     # Left
     pixels[0, height - 1] = (0, 0, 0, 0)
     pixels[1, height - 1] = (0, 0, 0, 0)
@@ -258,10 +290,6 @@ if maximized and applicationRoundBottom:
     pixels[width - 2, height - 2] = (0, 0, 0, 0)
 
     pixels[width - 1, height - 3] = (0, 0, 0, 0)
-
-# Maximized windows or those with a custom title bar shouldn't have an extra row and column of pixels
-if maximized or hascustomtitlebar:
-    image = image.crop((0, 0, width - 1, height - 1))
 
 print "Custom titlebar:", hascustomtitlebar
 
