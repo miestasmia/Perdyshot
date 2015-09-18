@@ -20,6 +20,12 @@ import os
 
 import argparse
 
+
+version = 'Perdyshot v0.5'
+
+
+
+
 # Make sure ImageMagick is installed
 subprocess.check_call('which convert > /dev/null', shell = True)
 
@@ -28,8 +34,9 @@ cwd = os.getcwd()
 
 parser = argparse.ArgumentParser(description = 'Take a perdy screenshot.')
 
-parser.add_argument('-f', '--file', help = 'the name of the output file', default = 'screenshot.png')
-parser.add_argument('--delay', help = 'the delay in seconds before capturing the active window', default = 1, type = float)
+parser.add_argument('--delay', help = 'the delay in seconds before capturing the active window (default: 1)', default = 1, type = float)
+parser.add_argument('-f', '--file', help = 'the name of the output file (default: screenshot.png)', default = 'screenshot.png')
+parser.add_argument('-v', '--version', action = 'version', version = version)
 
 args = vars(parser.parse_args())
 
