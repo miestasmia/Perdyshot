@@ -13,7 +13,21 @@ import time
 
 import sys
 
-config = ConfigObj('perdyshot.conf', encoding = 'UTF8', configspec = 'perdyshot.conf.spec')
+import os
+
+import argparse
+
+dir = os.path.dirname(os.path.realpath(__file__))
+cwd = os.getcwd()
+
+parser = argparse.ArgumentParser(description = 'Take a perdy screenshot.')
+
+parser.add_argument('-f', '--file', help = 'the name of the output file', default = 'screenshot.png')
+parser.add_argument('--delay', help = 'the delay in seconds before capturing the active window', default = 1, type = float)
+
+args = vars(parser.parse_args())
+
+config = ConfigObj(dir + '/perdyshot.conf', encoding = 'UTF8', configspec = dir + '/perdyshot.conf.spec')
 validator = Validator()
 if not config.validate(validator):
     print "Invalid configuration file"
@@ -21,8 +35,8 @@ if not config.validate(validator):
 
 
 
-print "Please select the window to be captured in 1 second"
-time.sleep(1)
+print "Please select the window to be captured\n"
+time.sleep(args['delay'])
 
 startTime = time.time()
 
@@ -293,4 +307,4 @@ print "Total time: %.2f seconds" % (totalTime - startTime)
 
 
 
-image.save('screenshot.png', 'png')
+image.save(args['file'], 'png')
