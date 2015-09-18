@@ -210,6 +210,10 @@ pixels = image.load()
 # Top
 roundTop = args['round_top'] if args['round_top'] != None else settings['roundTop']
 if(roundTop):
+    # Windows with round top corners have one pixel of junk at the top
+    height -= 1
+    image = image.crop((0, 1, width, height))
+
     # Left
     pixels[0, 0] =     (0,   0,   0,   0)
     pixels[1, 0] =     (0,   0,   0,   0)
