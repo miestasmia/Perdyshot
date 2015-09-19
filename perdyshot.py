@@ -20,6 +20,8 @@ import os
 
 import argparse
 
+import re
+
 
 version = 'Perdyshot v0.5.1'
 
@@ -33,6 +35,8 @@ dir = os.path.dirname(os.path.realpath(__file__))
 cwd = os.getcwd()
 
 parser = argparse.ArgumentParser(description = 'Take a perdy screenshot.')
+
+parser.add_argument('-b', '--background', help = 'overrides setting in perdyshot.conf', default = '')
 
 parser.add_argument('--delay', help = 'the delay in seconds before capturing the active window (default: 1)', default = 1, type = float)
 
@@ -157,6 +161,11 @@ WM_CLASS = window.property_get('WM_CLASS')[2].split('\x00')[0]
 
 # Read the config file and figure out the settings
 settings = {}
+if config['Settings']['background'] == "False":
+    settings['background'] = False
+else:
+    settings['background'] = config['Settings']['background']
+
 if WM_CLASS in config['Applications']:
     app = config['Applications'][WM_CLASS]
 
@@ -292,8 +301,16 @@ print "Custom titlebar:", hascustomtitlebar
 # Save the image with PIL for modification with ImageMagick
 image.save('/tmp/perdyshot.png', 'png')
 
-# Apply a shadow and save the image to the user-supplied path
-subprocess.check_output("convert /tmp/perdyshot.png -bordercolor none -border 64x64 -repage +48+48 \( +clone -background \#949494 -shadow 100x24+0+32 \) +swap -background none -mosaic " + args['file'], shell = True)
+# Apply a shadow
+command  = "convert /tmp/perdyshot.png -bordercolor none -border 64x64 -repage +48+48 \( +clone -background \#949494 -shadow 100x24+0+32 \) +swap -background none -mosaic"
+
+# Change the background if necessary
+background = args['background'] if args['background'] != '' else settings['background']
+if background != '':
+    command += " -background \"" + background + "\" -alpha remove"
+
+# Apply our magick to our image and save it to a file
+subprocess.check_output(command + " " + args['file'], shell = True)
 
 totalTime = time.time()
 print "\nScreenshot time: %.2f seconds" % (partialTime - startTime)
