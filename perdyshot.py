@@ -23,7 +23,7 @@ import argparse
 import re
 
 
-version = 'Perdyshot v0.5.1'
+version = 'Perdyshot v0.6'
 
 
 
