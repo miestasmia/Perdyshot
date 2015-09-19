@@ -1,3 +1,6 @@
+[Settings]
+    background = string(default = '')
+
 [Applications]
     [[__many__]]
         sizeBugged  = boolean(default = False)
