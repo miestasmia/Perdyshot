@@ -7,7 +7,9 @@ Perdy is a command-line (for now) Python application for Elementary OS that take
 
 At the current state of the project, Perdyshot is only capable of screenshotting entire windows, but support for area selections and more is planned.
 
-To use Perdyshot, grab the latest release (or clone this repository for bleeding edge) and run `python perdyshot.py`. Then select the window you want to capture and let it do its magic. It can take a while. The screenshot will be saved as `screenshot.png`.
+To use Perdyshot, grab the latest release (or clone this repository for bleeding edge) and run `python perdyshot.py` or simply `./perdyshot.py` if you have execute permission to make use of shebang! Then select the window you want to capture and let it do its magic. The screenshot will be saved as `screenshot.png` by default.
+
+For a list of options, use the `-h` command-line flags. Check out `perdyshot.conf`, too for even more options.
 
 # Examples
 ![](http://i.imgur.com/HhPFWtT.png)
@@ -18,3 +20,6 @@ To use Perdyshot, grab the latest release (or clone this repository for bleeding
 * Improve corner rounding (proper anti-aliasing?)
 * GUI
 * Add support for disabling Elementary OS hacks to add support for other distros (the hacks are the only thing preventing it from working properly on Arch, fx)
+* Add support for custom shadows
+* Add support for better naming of screenshots
+* Add screenshot name to config
