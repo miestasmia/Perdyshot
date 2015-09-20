@@ -1,7 +1,7 @@
 Perdyshot
 =========
 
-Perdy is a command-line (for now) Python application for Elementary OS that takes perdy screenshots. Us Linux-folk like nice stuff, too. :penguin:
+Perdyshot is a command-line (for now) Python application for Elementary OS that takes perdy screenshots. Us Linux-folk like nice stuff, too. :penguin:
 
 ![Perdyshot Example Image](http://i.imgur.com/suygnfu.png)
 
