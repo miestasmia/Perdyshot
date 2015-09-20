@@ -1,5 +1,6 @@
 [Settings]
     background = string(default = '')
+    filename   = string(default = '')
 
 [Applications]
     [[__many__]]
