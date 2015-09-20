@@ -40,7 +40,7 @@ parser.add_argument('-b', '--background', help = 'overrides setting in perdyshot
 
 parser.add_argument('--delay', help = 'the delay in seconds before capturing the active window (default: 1)', default = 1, type = float)
 
-parser.add_argument('-f', '--file', help = 'the name of the output file (default: screenshot.png)', default = 'screenshot.png')
+parser.add_argument('-f', '--file', help = 'overrides setting in perdyshot.conf', default = None)
 
 parser.add_argument('--round-top', help = "overrides setting in perdyshot.conf", default = None, action = 'store_true')
 parser.add_argument('--no-round-top', help = "overrides setting in perdyshot.conf", dest = 'round_top', action = 'store_false')
@@ -165,6 +165,8 @@ if config['Settings']['background'] == "False":
     settings['background'] = False
 else:
     settings['background'] = config['Settings']['background']
+
+settings['filename'] = config['Settings']['filename']
 
 if WM_CLASS in config['Applications']:
     app = config['Applications'][WM_CLASS]
@@ -306,13 +308,17 @@ command  = "convert /tmp/perdyshot.png -bordercolor none -border 64x64 -repage +
 
 # Change the background if necessary
 background = args['background'] if args['background'] != '' else settings['background']
-if background != '':
+if background != '' and background != False:
     command += " -background \"" + background + "\" -alpha remove"
 
 # Apply our magick to our image and save it to a file
-subprocess.check_output(command + " " + args['file'], shell = True)
+filename = args['file'] if args['file'] != None else settings['filename']
+filename = time.strftime(filename)
+subprocess.check_output(command + " " + filename, shell = True)
 
 totalTime = time.time()
 print "\nScreenshot time: %.2f seconds" % (partialTime - startTime)
 print "Post-processing time: %.2f seconds" % (totalTime - partialTime)
 print "Total time: %.2f seconds" % (totalTime - startTime)
+
+print "\nSaved as " + filename

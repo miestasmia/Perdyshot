@@ -21,5 +21,3 @@ For a list of options, use the `-h` command-line flag. Check out `perdyshot.conf
 * GUI
 * Add support for disabling Elementary OS hacks to add support for other distros (the hacks are the only thing preventing it from working properly on Arch, fx)
 * Add support for custom shadows
-* Add support for better naming of screenshots
-* Add screenshot name to config
