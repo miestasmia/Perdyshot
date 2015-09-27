@@ -23,7 +23,7 @@ import argparse
 import re
 
 
-version = 'Perdyshot v0.7.2'
+version = 'Perdyshot v0.8.0'
 
 
 
@@ -47,8 +47,7 @@ parser.add_argument('--no-round-top', help = "overrides setting in perdyshot.con
 
 parser.add_argument('--round-bottom', help = "overrides setting in perdyshot.conf", type = int, choices = [0, 1, 2], default = None)
 
-parser.add_argument('--size-bugged', help = "overrides setting in perdyshot.conf", default = None, action = 'store_true')
-parser.add_argument('--no-size-bugged', help = "overrides setting in perdyshot.conf", dest = 'size_bugged', action = 'store_false')
+parser.add_argument('--size-bugged', help = "overrides setting in perdyshot.conf", type = int, default = None, choices = [0, 1, 2])
 
 parser.add_argument('-v', '--version', action = 'version', version = version)
 
@@ -201,13 +200,20 @@ print "\tsizeBugged:",  settings['sizeBugged']
 print "\troundTop:",    settings['roundTop']
 print "\troundBottom:", settings['roundBottom']
 
+windowType = window.get_type_hint()
+print "Window type hint:", windowType
 
 sizeBugged = args['size_bugged'] if args['size_bugged'] != None else settings['sizeBugged']
-if sizeBugged:
+if sizeBugged == 1 or (sizeBugged == 2 and not(windowType & gdk.WINDOW_TYPE_HINT_DIALOG)):
     if not maximized:
-        image = image.crop((50, 38, width - 51, height - 62))
-        width -= 51 + 50
-        height -= 62 + 38
+        if windowType & gdk.WINDOW_TYPE_HINT_DIALOG:
+            image = image.crop((37, 26, width - 37, height - 46))
+            width -= 37 + 37
+            height -= 46 + 26
+        else:
+            image = image.crop((50, 38, width - 51, height - 62))
+            width -= 51 + 50
+            height -= 62 + 38
 
 # Maximized windows or those with a custom title bar shouldn't have an extra row and column of pixels
 if maximized or hascustomtitlebar:
