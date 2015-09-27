@@ -4,6 +4,6 @@
 
 [Applications]
     [[__many__]]
-        sizeBugged  = boolean(default = False)
+        sizeBugged  = integer(default = 0)
         roundTop    = boolean(default = None)
         roundBottom = integer(0, 2, default = None)
