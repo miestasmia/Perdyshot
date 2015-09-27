@@ -1,9 +1,11 @@
 Perdyshot
 =========
 
-Perdyshot is a command-line (for now) Python application for Elementary OS that takes perdy screenshots. Us Linux-folk like nice stuff, too. :penguin:
+Perdyshot is a command-line (for now) Python application for Linux that takes perdy screenshots. Us Linux-folk like nice stuff, too. :penguin:
 
 ![Perdyshot Example Image](http://i.imgur.com/suygnfu.png)
+
+While Perdyshot will work for *any* Linux distro, it'll require some modification of the configuration file to look good on distros other than Elementary OS. That's not a very difficult task, though.
 
 At the current state of the project, Perdyshot is only capable of screenshotting entire windows, but support for area selections and more is planned. :whale:
 
