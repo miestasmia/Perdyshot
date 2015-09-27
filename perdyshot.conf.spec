@@ -2,6 +2,11 @@
     background = string(default = '')
     filename   = string(default = '')
 
+    cornerImage   = string(default = '')
+    cornerImageDM = string(default = '')
+    borderImage   = string(default = '')
+    borderImageDM = string(default = '')
+
 [Applications]
     [[__many__]]
         sizeBugged  = integer(default = 0)
