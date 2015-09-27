@@ -17,7 +17,5 @@ For a list of options, use the `-h` command-line flag. Check out `perdyshot.conf
 
 ## TODO :thumbsup:
 * Implement support for other selection types
-* Improve corner rounding (proper anti-aliasing?)
 * GUI
-* Add support for disabling Elementary OS hacks to add support for other distros (the hacks are the only thing preventing it from working properly on Arch, fx)
 * Add support for custom shadows

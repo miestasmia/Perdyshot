@@ -8,7 +8,7 @@ from validate import Validator
 from gtk import gdk
 
 # We use PIL for simple tasks and ImageMagick for computationally-heavy tasks
-from PIL import Image
+from PIL import Image, ImageOps
 
 import subprocess
 
@@ -23,8 +23,7 @@ import argparse
 import re
 
 
-version = 'Perdyshot v0.8.1'
-
+version = 'Perdyshot v1.0'
 
 
 
@@ -95,6 +94,8 @@ if window == None:
 
 # And its geometry
 x, y = window.get_origin()
+x -= 1
+y -= 1
 width, height = window.get_size()
 
 # Fix something that may just be specific to my fucked up left monitor
@@ -105,24 +106,86 @@ if x < 0:
 
 # Get the position of the window decorations
 decoX, decoY = window.get_root_origin()
+decoY += 1
 
 # Check if the window has a custom titlebar
-hascustomtitlebar = (y == decoY)
+hascustomtitlebar = (y + 2 == decoY)
+print "Custom titlebar:", hascustomtitlebar
 
 print "Coordinates: (%s, %s)" % (x, y)
 print "Window decoration coordinates: (%s, %s)" % (y, decoY)
-print "Window decorations:", window.get_decorations()
-print "Borders requested:", not not (window.get_decorations() & gdk.DECOR_BORDER)
 
 # Add the dimensions of the decorations to window dimensions
-width  += x - decoX
-height += y - decoY
+width  += x - decoX + 1
+height += y - decoY - 1
 
 print "Size (estimate): %sx%s" % (width, height)
 
-# To account for the one pixel border on some applications
-width  += 1
-height += 1
+windowType = window.get_type_hint()
+print "Window type hint:", windowType
+
+# Get its WM_CLASS
+WM_CLASS = window.property_get('WM_CLASS')[2].split('\x00')[0]
+print "WM_CLASS:", WM_CLASS
+
+# Read the config file and figure out the settings
+settings = {}
+if config['Settings']['background'] == "False":
+    settings['background'] = False
+else:
+    settings['background'] = config['Settings']['background']
+
+settings['filename'] = config['Settings']['filename']
+
+if config['Settings']['cornerImage'] == '':
+    settings['cornerImage'] = None
+else:
+    settings['cornerImage'] = Image.open(config['Settings']['cornerImage'])
+
+if config['Settings']['cornerImageDM'] == '':
+    settings['cornerImageDM'] = None
+else:
+    settings['cornerImageDM'] = Image.open(config['Settings']['cornerImageDM'])
+
+if config['Settings']['borderImage'] == '':
+    settings['borderImage'] = None
+else:
+    settings['borderImage'] = Image.open(config['Settings']['borderImage'])
+
+if config['Settings']['borderImageDM'] == '':
+    settings['borderImageDM'] = None
+else:
+    settings['borderImageDM'] = Image.open(config['Settings']['borderImageDM'])
+
+
+if WM_CLASS in config['Applications']:
+    app = config['Applications'][WM_CLASS]
+
+    settings['sizeBugged'] = app['sizeBugged']
+
+    settings['roundTop'] = app['roundTop']
+    if settings['roundTop'] == None:
+        settings['roundTop'] = not hascustomtitlebar
+
+    settings['roundBottom'] = app['roundBottom']
+    if settings['roundBottom'] == None:
+        if hascustomtitlebar:
+            settings['roundBottom'] = 0
+        else:
+            settings['roundBottom'] = 2
+else:
+    settings['sizeBugged'] = False
+
+    settings['roundTop'] = not hascustomtitlebar
+
+    if hascustomtitlebar:
+        settings['roundBottom'] = 0
+    else:
+        settings['roundBottom'] = 2
+
+# Add the border size
+width  += settings['borderImage'].size[0]
+height += settings['borderImage'].size[1]
 
 # Get pixbuf
 pixbuf = gdk.Pixbuf(gdk.COLORSPACE_RGB, True, 8, width, height)
@@ -153,158 +216,132 @@ print "Window bounding box: (%s, %s) %sx%s" % (bounds.x, bounds.y, bounds.width,
 # At least on Pantheon, the gtk.gdk.WINDOW_STATE_MAXIMIZED state isn't set, so we resort to this
 maximized = height + 31 >= monitor.height and bounds.y - monitor.y + bounds.height == monitor.height
 
-print "Maximized:", maximized
-
-# Get its WM_CLASS
-WM_CLASS = window.property_get('WM_CLASS')[2].split('\x00')[0]
-
-# Read the config file and figure out the settings
-settings = {}
-if config['Settings']['background'] == "False":
-    settings['background'] = False
-else:
-    settings['background'] = config['Settings']['background']
-
-settings['filename'] = config['Settings']['filename']
-
-if WM_CLASS in config['Applications']:
-    app = config['Applications'][WM_CLASS]
-
-    settings['sizeBugged'] = app['sizeBugged']
-
-    settings['roundTop'] = app['roundTop']
-    if settings['roundTop'] == None:
-        settings['roundTop'] = not hascustomtitlebar
-
-    settings['roundBottom'] = app['roundBottom']
-    if settings['roundBottom'] == None:
-        if hascustomtitlebar:
-            settings['roundBottom'] = 0
-        else:
-            settings['roundBottom'] = 2
-else:
-    settings['sizeBugged'] = False
-
-    settings['roundTop'] = not hascustomtitlebar
-
-    if hascustomtitlebar:
-        settings['roundBottom'] = 0
-    else:
-        settings['roundBottom'] = 2
-
-
-print "WM_CLASS:", WM_CLASS
+print "Maximised:", maximized
 
 print "Application-specific settings:"
 print "\tsizeBugged:",  settings['sizeBugged']
 print "\troundTop:",    settings['roundTop']
 print "\troundBottom:", settings['roundBottom']
 
-windowType = window.get_type_hint()
-print "Window type hint:", windowType
-
 sizeBugged = args['size_bugged'] if args['size_bugged'] != None else settings['sizeBugged']
 if sizeBugged == 1 or (sizeBugged == 2 and not(windowType & gdk.WINDOW_TYPE_HINT_DIALOG)):
     if not maximized:
         if windowType & gdk.WINDOW_TYPE_HINT_DIALOG:
-            image = image.crop((37, 26, width - 37, height - 46))
-            width -= 37 + 37
-            height -= 46 + 26
+            image = image.crop((37, 27, width - 38, height - 48))
+            width -= 38 + 37
+            height -= 48 + 27
         else:
             image = image.crop((50, 38, width - 51, height - 62))
             width -= 51 + 50
             height -= 62 + 38
 
-# Maximized windows or those with a custom title bar shouldn't have an extra row and column of pixels
-if maximized or hascustomtitlebar:
-    image = image.crop((0, 0, width - 1, height - 1))
-    width -= 1
-    height -= 1
-
 # Fix borders
 pixels = image.load()
 
-# Top
 roundTop = args['round_top'] if args['round_top'] != None else settings['roundTop']
-if(roundTop):
-    # Windows with round top corners have one pixel of junk at the top
-    height -= 1
-    image = image.crop((0, 1, width, height))
 
-    # Left
-    pixels[0, 0] =     (0,   0,   0,   0)
-    pixels[1, 0] =     (0,   0,   0,   0)
-    pixels[2, 0] =     (0,   0,   0,   0)
-
-    if not maximized and window.get_decorations() & gdk.DECOR_BORDER:
-        pixels[3, 0] = (227, 227, 227, 255)
-        pixels[4, 0] = (136, 136, 136, 255)
-        pixels[5, 0] = (116, 116, 116, 255)
-
-    pixels[0, 1] =     (0,   0,   0,   0)
-    pixels[1, 1] =     (0,   0,   0,   0)
-    if not maximized and window.get_decorations() & gdk.DECOR_BORDER:
-        pixels[2, 1] = (133, 133, 133, 255)
-
-    pixels[0, 2] =     (0,   0,   0,   0)
-    if not maximized and window.get_decorations() & gdk.DECOR_BORDER:
-        pixels[1, 2] = (133, 133, 133, 255)
-
-    if not maximized and window.get_decorations() & gdk.DECOR_BORDER:
-        pixels[0, 3] = (227, 227, 227, 255)
-
-        pixels[0, 4] = (134, 134, 134, 255)
-
-        pixels[0, 5] = (117, 117, 117, 255)
-
-    # Right
-    pixels[width -      1, 0] = (0,   0,   0,   0)
-    pixels[width -      2, 0] = (0,   0,   0,   0)
-    pixels[width -      3, 0] = (0,   0,   0,   0)
-    if not maximized and window.get_decorations() & gdk.DECOR_BORDER:
-        pixels[width -  4, 0] = (227, 227, 227, 255)
-        pixels[width -  5, 0] = (136, 136, 136, 255)
-        pixels[width -  6, 0] = (116, 116, 116, 255)
-
-    pixels[width -      1, 1] = (0,   0,   0,   0)
-    pixels[width -      2, 1] = (0,   0,   0,   0)
-    if not maximized and window.get_decorations() & gdk.DECOR_BORDER:
-        pixels[width -  3, 1] = (133, 133, 133, 255)
-
-    pixels[width -      1, 2] = (0,   0,   0,   0)
-    if not maximized and window.get_decorations() & gdk.DECOR_BORDER:
-        pixels[width -  2, 2] = (133, 133, 133, 255)
-
-        pixels[width -  1, 3] = (227, 227, 227, 255)
-
-        pixels[width -  1, 4] = (134, 134, 134, 255)
-
-        pixels[width -  1, 5] = (117, 117, 117, 255)
-
-# Bottom
 roundBottom = args['round_bottom'] if args['round_bottom'] != None else settings['roundBottom']
-if roundBottom == 1 or (roundBottom == 2 and maximized):
-    # Left
-    pixels[0, height - 1] = (0, 0, 0, 0)
-    pixels[1, height - 1] = (0, 0, 0, 0)
-    pixels[2, height - 1] = (0, 0, 0, 0)
+roundBottom = (roundBottom == 1 or (roundBottom == 2 and (maximized or windowType & gdk.WINDOW_TYPE_HINT_DIALOG)))
 
-    pixels[0, height - 2] = (0, 0, 0, 0)
-    pixels[1, height - 2] = (0, 0, 0, 0)
+# Apply deletion maps
+cornerDeleteMapSize = (0, 0)
+if settings['cornerImageDM'] != None:
+    cornerDeleteMap = settings['cornerImageDM'].load()
+    cornerDeleteMapSize = settings['cornerImageDM'].size
+    for deleteColumn in xrange(0, cornerDeleteMapSize[0]):
+        for deleteRow in xrange(0, cornerDeleteMapSize[1]):
+            if cornerDeleteMap[deleteColumn, deleteRow][3] > 0:
+                if roundTop:
+                    # Top left
+                    pixels[deleteColumn, deleteRow] = (0, 0, 0, 0)
+                    # Top right
+                    pixels[width - deleteColumn - 1, deleteRow] = (0, 0, 0, 0)
+                if roundBottom:
+                    # Bottom left
+                    pixels[deleteColumn, height - deleteRow - 1] = (0, 0, 0, 0)
+                    # Bottom right
+                    pixels[width - deleteColumn - 1, height - deleteRow - 1] = (0, 0, 0, 0)
 
-    pixels[0, height - 3] = (0, 0, 0, 0)
+    if settings['borderImageDM'] != None:
+        borderDeleteMap = settings['borderImageDM'].load()
+        borderDeleteMapSize = settings['borderImageDM'].size
+        for imx in xrange(0, width, borderDeleteMapSize[0]):
+            for deleteColumn in xrange(0, borderDeleteMapSize[0]):
+                for deleteRow in xrange(0, borderDeleteMapSize[1]):
+                    if borderDeleteMap[deleteColumn, deleteRow][3] > 0:
+                        # Top
+                        if not (roundTop and imx in xrange(cornerDeleteMapSize[0] - 1, width - cornerDeleteMapSize[0] - 1)):
+                            pixels[imx + deleteColumn, deleteRow] = (0, 0, 0, 0)
+                        # Bottom
+                        if not (roundBottom and imx in xrange(cornerDeleteMapSize[0] - 1, width - cornerDeleteMapSize[0] - 1)):
+                            pixels[imx + deleteColumn, height - deleteRow - 1] = (0, 0, 0, 0)
 
-    # Right
-    pixels[width - 1, height - 1] = (0, 0, 0, 0)
-    pixels[width - 2, height - 1] = (0, 0, 0, 0)
-    pixels[width - 3, height - 1] = (0, 0, 0, 0)
+        for imy in xrange(0, height, borderDeleteMapSize[1]):
+            # TODO: Rotate the image
+            for deleteColumn in xrange(0, borderDeleteMapSize[0]):
+                for deleteRow in xrange(0, borderDeleteMapSize[1]):
+                    if borderDeleteMap[deleteColumn, deleteRow][3] > 0:
+                        # Left
+                        if not ((roundTop and imy < cornerDeleteMapSize[1] - 1) or (roundBottom and imy > height - cornerDeleteMapSize[1] - 1)):
+                            pixels[deleteColumn, imy + deleteRow] = (0, 0, 0, 0)
+                        # Right
+                        if not ((roundTop and imy < cornerDeleteMapSize[1] - 1) or (roundBottom and imy > height - cornerDeleteMapSize[1] - 1)):
+                            pixels[width - deleteColumn - 1, imy + deleteRow] = (0, 0, 0, 0)
 
-    pixels[width - 1, height - 2] = (0, 0, 0, 0)
-    pixels[width - 2, height - 2] = (0, 0, 0, 0)
+# Apply overlay images
+cornerImageSize = (0, 0)
+if settings['cornerImage'] != None:
+    cornerImage = settings['cornerImage']
+    cornerImageSize = cornerImage.size
 
-    pixels[width - 1, height - 3] = (0, 0, 0, 0)
+    if roundTop:
+        imageTopLeft = cornerImage.copy()
+        image.paste(imageTopLeft, (0, 0), imageTopLeft)
 
-print "Custom titlebar:", hascustomtitlebar
+        imageTopRight = ImageOps.mirror(cornerImage)
+        image.paste(imageTopRight, (width - cornerImageSize[0], 0), imageTopRight)
+
+    if roundBottom:
+        imageBottomLeft = ImageOps.flip(cornerImage)
+        image.paste(imageBottomLeft, (0, height - cornerImageSize[1]), imageBottomLeft)
+
+        imageBottomRight = ImageOps.flip(ImageOps.mirror(cornerImage))
+        image.paste(imageBottomRight, (width - cornerImageSize[0], height - cornerImageSize[1]), imageBottomRight)
+
+if settings['borderImage'] != None:
+    borderImage = settings['borderImage']
+    borderImageSize = borderImage.size
+
+    for imx in xrange(1, width, borderImageSize[0]):
+        # Top
+        if not roundTop or imx in xrange(cornerImageSize[0], width - cornerImageSize[0]):
+            borderImageCopy = borderImage.copy()
+            image.paste(borderImageCopy, (imx, 0), borderImageCopy)
+
+        # Bottom
+        if not roundBottom or imx in xrange(cornerImageSize[0], width - cornerImageSize[0]):
+            borderImageCopy = ImageOps.flip(borderImage)
+            image.paste(borderImageCopy, (imx, height - 1), borderImageCopy)
+
+
+    rangeStartY = 1
+    if roundTop:
+        rangeStartY = cornerImageSize[1] - 1
+
+    rangeEndY = height - 1
+    if roundBottom:
+        rangeEndY = height - cornerImageSize[1]
+
+    for imy in xrange(rangeStartY, rangeEndY, borderImageSize[0]):
+        # Left
+        borderImageCopy = borderImage.rotate(90)
+        image.paste(borderImageCopy, (0, imy), borderImageCopy)
+
+        # Right
+        borderImageCopy = borderImage.rotate(270)
+        image.paste(borderImageCopy, (width - 1, imy), borderImageCopy)
+
+
 
 # Save the image with PIL for modification with ImageMagick
 image.save('/tmp/perdyshot.png', 'png')
