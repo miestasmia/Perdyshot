@@ -14,7 +14,7 @@ To use Perdyshot, grab the latest release (or clone this repository for bleeding
 For a list of options, use the `-h` command-line flag. Check out `perdyshot.conf`, too for even more options! :raised_hands:
 
 # Examples
-![](http://i.imgur.com/HhPFWtT.png)
+![](http://i.imgur.com/ORmXCdS.png)
 ![](http://i.imgur.com/FZzSqWh.png)
 
 ## TODO :thumbsup:
