@@ -29,7 +29,7 @@ def main(argSource):
     # Make sure ImageMagick is installed
     subprocess.check_call('which convert > /dev/null', shell = True)
 
-    parser = argparse.ArgumentParser(description = 'Take a perdy screenshot.')
+    parser = argparse.ArgumentParser(description = 'Take a perdy screenshot of the active window.')
 
     parser.add_argument('-b', '--background', help = 'overrides setting in perdyshot.conf', default = '')
 
