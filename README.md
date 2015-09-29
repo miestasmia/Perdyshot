@@ -19,6 +19,9 @@ Make sure to check out `perdyshot.conf`, to see if there's anything you want to 
 ![](http://i.imgur.com/ORmXCdS.png)
 ![](http://i.imgur.com/mCluahW.png)
 
+# License :book:
+Perdyshot is free software released under the MIT license. See `LICENSE.md` for the full license. :statue_of_liberty:
+
 # Thanks to :thumbsup:
 * [Prof. Erik Ernst](http://www.daimi.au.dk/~eernst/) for helping me figure out alpha compositing and having a tonne of patience.
 * [Tallerkenen](http://tallerknen.deviantart.com/gallery/) for making an awesome icon.
