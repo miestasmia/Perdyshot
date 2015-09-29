@@ -1,23 +1,32 @@
 Perdyshot
 =========
 
-Perdyshot is a command-line (for now) Python application for Linux that takes perdy screenshots. Us Linux-folk like nice stuff, too. :penguin:
+Perdyshot is a Linux application that takes perdy screenshots. Us Linux-folk like nice stuff, too. :penguin:
 
-![Perdyshot Example Image](http://i.imgur.com/suygnfu.png)
+![Perdyshot Example Image](http://i.imgur.com/82OA2py.png)
 
-While Perdyshot will work for *any* Linux distro, it'll require some modification of the configuration file to look good on distros other than Elementary OS. That's not a very difficult task, though.
+While Perdyshot will work on *any* Linux distro, it'll require some modification of the configuration file to look good on distros other than Elementary OS. That's not a very difficult task, though. :fist:
 
 At the current state of the project, Perdyshot is only capable of screenshotting entire windows, but support for area selections and more is planned. :whale:
 
-To use Perdyshot, grab the latest release (or clone this repository for bleeding edge) and run `python perdyshot.py` or simply `./perdyshot.py` if you have execute permission to make use of shebang! Then select the window you want to capture and let it do its magic. The screenshot will be saved as `screenshot.png` by default.
+To use Perdyshot, grab the latest release (or clone this repository for bleeding edge) and run `./gui/perdyshot.py`. That'll create a tray icon that opens a menu when you click it. :v:
 
-For a list of options, use the `-h` command-line flag. Check out `perdyshot.conf`, too for even more options! :raised_hands:
+If you want a bit more control, check out the `cli` folder. The scripts in there are what the GUI uses. For a list of options, use the `-h` command-line flag. :musical_note:
 
-# Examples
+Make sure to check out `perdyshot.conf`, to see if there's anything you want to change! :raised_hands:
+
+# Examples :sparkles:
 ![](http://i.imgur.com/ORmXCdS.png)
-![](http://i.imgur.com/FZzSqWh.png)
+![](http://i.imgur.com/mCluahW.png)
 
-## TODO :thumbsup:
-* Implement support for other selection types
-* GUI
-* Add support for custom shadows
+# Thanks to :thumbsup:
+* [Prof. Erik Ernst](http://www.daimi.au.dk/~eernst/) for helping me figure out alpha compositing and having a tonne of patience.
+* [Tallerkenen](http://tallerknen.deviantart.com/gallery/) for making an awesome icon.
+
+## TODO :calendar:
+* Other selection types (area, ancestor window, monitor, screen)
+* Actual GUI
+* Custom shadows
+* Installer with dependency checker
+* More premade configuration files for different themes/distros
+* Support for uploading (with support for custom destinations using an API configuration system)
