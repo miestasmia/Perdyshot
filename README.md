@@ -29,7 +29,6 @@ Perdyshot is free software released under the MIT license. See `LICENSE.md` for 
 ## TODO :calendar:
 * Other selection types (area, ancestor window, monitor, screen)
 * Actual GUI
-* Custom shadows
 * Installer with dependency checker
 * More premade configuration files for different themes/distros
 * Support for uploading (with support for custom destinations using an API configuration system)
