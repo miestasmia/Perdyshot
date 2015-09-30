@@ -23,15 +23,33 @@ class AreaWindow(QtGui.QWidget):
 
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
 
-        self.canvas = QtGui.QGraphicsScene()
-        self.view = QtGui.QGraphicsView(self.canvas)
+        self.scene = QtGui.QGraphicsScene()
+
+        self.view = QtGui.QGraphicsView(self.scene)
         self.view.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.view.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.view.mouseMoveEvent = self.mouseMoveEvent
 
         self.layout = QtGui.QVBoxLayout()
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.addWidget(self.view)
         self.setLayout(self.layout)
+
+        self.selection = self.scene.addRect(QtCore.QRectF(0, 0, 0, 0), QtGui.QPen(QtGui.QColor(255, 255, 255)))
+
+        self.pressed = False
+
+    def mousePressEvent(self, event):
+        self.selection.setRect(0, 0, 0, 0)
+
+        self.pressed = True
+
+    def mouseReleaseEvent(self, event):
+        self.pressed = False
+
+    def mouseMoveEvent(self, event):
+        if self.pressed: # Doesn't draw for some reason
+            self.selection.setRect(self.selection.x(), self.selection.y(), event.pos().x() - self.selection.x(), event.pos().y() - self.selection.y())
 
 
 
@@ -50,7 +68,7 @@ def activate():
     screenshot = gdk.Pixbuf.get_from_drawable(pixbuf, gdk.get_default_root_window(), gdk.colormap_get_system(), 0, 0, 0, 0, screenWidth, screenHeight)
     screenshot.save('/tmp/perdyselection.png', 'png')
 
-    areaWindow.background = QtGui.QGraphicsPixmapItem(QtGui.QPixmap('/tmp/perdyselection.png'), None, areaWindow.canvas)
+    areaWindow.background = QtGui.QGraphicsPixmapItem(QtGui.QPixmap('/tmp/perdyselection.png'), None, areaWindow.scene)
 
     areaWindow.show()
 
