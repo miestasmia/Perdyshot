@@ -42,6 +42,8 @@ def main(argSource):
 
     parser.add_argument('--round-bottom', help = "overrides setting in perdyshot.conf", type = int, choices = [0, 1, 2], default = None)
 
+    parser.add_argument('--shadow', help = "overrides setting in perdyshot.conf", default = None)
+
     parser.add_argument('--size-bugged', help = "overrides setting in perdyshot.conf", type = int, default = None, choices = [0, 1, 2])
 
     parser.add_argument('-v', '--version', action = 'version', version = version)
@@ -126,10 +128,13 @@ def main(argSource):
 
     # Read the config file and figure out the settings
     settings = {}
+
     if config['Settings']['background'] == "False":
         settings['background'] = False
     else:
         settings['background'] = config['Settings']['background']
+
+    settings['shadow'] = config['Settings']['shadowColour']
 
     settings['filename'] = config['Settings']['filename']
 
@@ -343,7 +348,8 @@ def main(argSource):
     image.save('/tmp/perdyshot.png', 'png')
 
     # Apply a shadow
-    command  = "convert /tmp/perdyshot.png -bordercolor none -border 64x64 -repage +48+48 \( +clone -background \#949494 -shadow 100x24+0+32 \) +swap -background none -mosaic"
+    shadowColour = args['shadow'] if args['shadow'] != None else settings['shadow']
+    command  = "convert /tmp/perdyshot.png -bordercolor none -border 64x64 -repage +48+48 \( +clone -background \"" + shadowColour + "\" -shadow 100x24+0+32 \) +swap -background none -mosaic"
 
     # Change the background if necessary
     background = args['background'] if args['background'] != '' else settings['background']
