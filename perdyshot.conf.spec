@@ -1,6 +1,7 @@
 [Settings]
-    background = string(default = '')
-    filename   = string(default = '')
+    background   = string(default = '')
+    shadowColour = string(default = '#949494')
+    filename     = string(default = '')
 
     cornerImage   = string(default = '')
     cornerImageDM = string(default = '')
