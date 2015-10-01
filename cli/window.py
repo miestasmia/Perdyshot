@@ -18,16 +18,11 @@ import os
 
 import argparse
 
-import re
-
 def main(argSource):
     dir = os.path.dirname(os.path.realpath(__file__))
     cwd = os.getcwd()
 
     version = 'Perdyshot ' + open(dir + '/../.version', 'r').read()
-
-    # Make sure ImageMagick is installed
-    subprocess.check_call('which convert > /dev/null', shell = True)
 
     parser = argparse.ArgumentParser(description = 'Take a perdy screenshot of the active window.')
 
