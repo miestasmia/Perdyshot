@@ -1,14 +1,14 @@
 #!/usr/bin/env python2
 
-from configobj import ConfigObj
-from validate import Validator
-
 import os, sys, signal
 
 from gtk import gdk
 
 from PyQt4 import QtGui, QtCore
 Qt = QtCore.Qt
+
+from PIL import Image
+
 
 dir = os.path.dirname(os.path.realpath(__file__))
 cwd = os.getcwd()
@@ -228,7 +228,10 @@ class AreaWindow(QtGui.QWidget):
             if __name__ == '__main__':
                 sys.exit()
             else:
-                areaWindow.hide()
+                self.hide()
+
+        elif key in [Qt.Key_Enter, Qt.Key_Return]:
+            self.capture(dx, dy, dw, dh)
 
         elif key in [Qt.Key_Left, Qt.Key_Up, Qt.Key_Right, Qt.Key_Down]:
             diffx = 0
@@ -349,6 +352,16 @@ class AreaWindow(QtGui.QWidget):
         # Resize top-left and bottom-right
         elif mode == 6 or mode == 8:
             self.setCursor(Qt.SizeFDiagCursor)
+
+    def capture(self, x, y, w, h):
+        self.hide()
+
+        image = Image.open('/tmp/perdyselection.png')
+        image = image.crop((x, y, x + w, x + h))
+        image.save('screenshot.png', 'png')
+
+        if __name__ == '__main__':
+            sys.exit()
 
 
 
