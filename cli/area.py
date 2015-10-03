@@ -31,6 +31,8 @@ class AreaWindow(QtGui.QWidget):
         self.view = QtGui.QGraphicsView(self.scene)
         self.view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+        self.view.setMouseTracking(True)
         self.view.mouseMoveEvent = self.mouseMoveEvent
         self.view.mousePressEvent = self.mousePressEvent
         self.view.mouseReleaseEvent = self.mouseReleaseEvent
@@ -74,44 +76,72 @@ class AreaWindow(QtGui.QWidget):
 
         self.pressed = False
 
+        self.selPos = (0, 0)
+        self.selDims = (0, 0, 0, 0)
+
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
-            self.selPos = (event.x(), event.y())
-
-            self.selection.setRect(self.selPos[0], self.selPos[1], 0, 0)
-            self.coverLeft.setRect(0, 0, self.width(), self.height())
-            self.coverRight.setRect(0, 0, 0, 0)
-            self.coverTop.setRect(0, 0, 0, 0)
-            self.coverBottom.setRect(0, 0, 0, 0)
-
             self.pressed = True
+
+            # If clicking outside the current selection
+            if not (event.x() in xrange(self.selDims[0], self.selDims[0] + self.selDims[2]) and event.y() in xrange(self.selDims[1], self.selDims[1] + self.selDims[3])):
+                self.selPos = (event.x(), event.y())
+                self.selDims = (0, 0, 0, 0)
+
+                self.selection.setRect(self.selPos[0], self.selPos[1], 0, 0)
+                self.coverLeft.setRect(0, 0, self.width(), self.height())
+                self.coverRight.setRect(0, 0, 0, 0)
+                self.coverTop.setRect(0, 0, 0, 0)
+                self.coverBottom.setRect(0, 0, 0, 0)
+
+        self.updateCursor(event.x(), event.y())
 
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.pressed = False
 
+        self.updateCursor(event.x(), event.y())
+
     def mouseMoveEvent(self, event):
         if self.pressed:
-            x = self.selPos[0]
-            y = self.selPos[1]
-            w = event.x() - x
-            h = event.y() - y
+            if not (event.x() in xrange(self.selDims[0], self.selDims[0] + self.selDims[2]) and event.y() in xrange(self.selDims[1], self.selDims[1] + self.selDims[3])):
+                x = self.selPos[0]
+                y = self.selPos[1]
+                w = event.x() - x
+                h = event.y() - y
 
-            if w < 0:
-                x, w = x + w, -w
+                if w < 0:
+                    x, w = x + w, -w
 
-            if h < 0:
-                y, h = y + h, -h
+                if h < 0:
+                    y, h = y + h, -h
 
-            self.selection.setRect(x, y, w, h)
-            self.coverLeft.setRect(0, 0, x, self.height())
-            self.coverRight.setRect(x + w, 0, self.width(), self.height())
-            self.coverTop.setRect(x, 0, w, y)
-            self.coverBottom.setRect(x, y + h, w, self.height() - y - h)
+                self.selDims = (x, y, w, h)
+
+                self.selection.setRect(x, y, w, h)
+                self.coverLeft.setRect(0, 0, x, self.height())
+                self.coverRight.setRect(x + w, 0, self.width(), self.height())
+                self.coverTop.setRect(x, 0, w, y)
+                self.coverBottom.setRect(x, y + h, w, self.height() - y - h)
+
+        self.updateCursor(event.x(), event.y())
+
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
             sys.exit()
+
+    # Set the cursor according to its position
+    def updateCursor(self, x, y):
+        rx, ry, rw, rh = self.selDims
+        rx2, ry2 = rx + rw, ry + rh
+
+        # Inside the selection
+        if x in xrange(rx, rx2) and y in xrange(ry, ry2):
+            self.setCursor(Qt.OpenHandCursor)
+        # Outside the selection
+        else:
+            self.setCursor(Qt.CrossCursor)
 
 
 
