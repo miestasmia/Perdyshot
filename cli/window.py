@@ -18,7 +18,7 @@ def main(argSource):
 
     version = 'Perdyshot ' + open(dir + '/../.version', 'r').read()
 
-    parser = argparse.ArgumentParser(description = 'Take a perdy screenshot of the active window.')
+    parser = argparse.ArgumentParser(description = 'Takes a perdy screenshot of the active window.')
 
     parser.add_argument('-b', '--background', help = 'overrides setting in perdyshot.conf', default = '')
 
