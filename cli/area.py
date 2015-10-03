@@ -106,11 +106,12 @@ class AreaWindow(QtGui.QWidget):
         if self.leftPressed:
             tw, th = self.width(), self.height()
             x, y, w, h = self.selPos
+            dx, dy, dw, dh = self.selDims
             mx, my = event.x(), event.y()
             mxo, myo = self.curPos
 
             # In the current selection
-            if mx in xrange(self.selDims[0], self.selDims[0] + self.selDims[2]) and my in xrange(self.selDims[1], self.selDims[1] + self.selDims[3]):
+            if mx in xrange(dx, dx + dw) and my in xrange(dy, dy + dh):
                 xDiff = mx - mxo
                 yDiff = my - myo
 
