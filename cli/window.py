@@ -5,6 +5,8 @@ from validate import Validator
 
 import argparse
 
+dirname = os.path.dirname(__file__)
+sys.path.append(os.path.join(dirname, os.path.pardir, "lib"))
 import wireutils
 wireutils.cprintconf.name = "Perdyshot"
 wireutils.cprintconf.color= wireutils.bcolors.DARKCYAN
@@ -17,7 +19,6 @@ from PIL import Image, ImageOps
 import subprocess, time, sys, os, signal
 
 def main(argSource):
-    dirname = os.path.dirname(os.path.realpath(__file__))
     cwd = os.getcwd()
 
     version = 'Perdyshot ' + open(os.path.join(dirname, os.path.pardir, '.version'), 'r').read()

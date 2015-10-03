@@ -5,6 +5,8 @@ from validate import Validator
 
 import argparse, os, sys, signal, time, temppath
 
+dirname = os.path.dirname(__file__)
+sys.path.append(os.path.join(dirname, os.path.pardir, "lib"))
 import wireutils
 wireutils.cprintconf.name = "Perdyshot"
 wireutils.cprintconf.color= wireutils.bcolors.DARKCYAN
@@ -18,7 +20,6 @@ from PIL import Image
 
 
 def main(argSource):
-    dirname = os.path.dirname(os.path.realpath(__file__))
     cwd = os.getcwd()
 
     app = QtGui.QApplication(sys.argv)
