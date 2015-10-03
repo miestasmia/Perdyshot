@@ -29,6 +29,7 @@ Perdyshot is free software (as in freedom and free beer) released under the MIT 
 ## TODO :calendar:
 * Other selection types (area, ancestor window, monitor, screen)
 * Actual GUI
-* More premade configuration files for different themes/distros
+* More premade configuration files and bitmaps for different themes/distros
+	* Set up a PR system for it
 * Support for uploading (with support for custom destinations using an API configuration system)
 * Support for image manipulation (using a built-in editor or an external)
