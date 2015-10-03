@@ -59,7 +59,7 @@ class AreaWindow(QtGui.QWidget):
 
 
 
-areaWindow = None
+areaWindow = AreaWindow()
 
 def activate():
     screen = gdk.screen_get_default()
@@ -70,8 +70,6 @@ def activate():
     pixbuf = gdk.Pixbuf(gdk.COLORSPACE_RGB, True, 8, screenWidth, screenHeight)
     screenshot = gdk.Pixbuf.get_from_drawable(pixbuf, gdk.get_default_root_window(), gdk.colormap_get_system(), 0, 0, 0, 0, screenWidth, screenHeight)
     screenshot.save('/tmp/perdyselection.png', 'png')
-
-    areaWindow = AreaWindow()
     areaWindow.move(0, 0)
     areaWindow.setFixedSize(screenWidth, screenHeight)
     areaWindow.show()
