@@ -243,6 +243,12 @@ class AreaWindow(QtGui.QWidget):
             elif key == Qt.Key_Down:
                 diffy = 1
 
+
+            if event.modifiers() & Qt.ShiftModifier:
+                diffx *= 4
+                diffy *= 4
+
+
             x  += diffx
             dx += diffx
 
