@@ -225,7 +225,10 @@ class AreaWindow(QtGui.QWidget):
         dx, dy, dw, dh = self.selDims
 
         if key == Qt.Key_Escape:
-            sys.exit()
+            if __name__ == '__main__':
+                sys.exit()
+            else:
+                areaWindow.hide()
 
         elif key in [Qt.Key_Left, Qt.Key_Up, Qt.Key_Right, Qt.Key_Down]:
             diffx = 0
