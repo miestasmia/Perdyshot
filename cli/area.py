@@ -118,25 +118,71 @@ class AreaWindow(QtGui.QWidget):
             dx, dy, dw, dh = self.selDims
             mx, my = event.x(), event.y()
             mxo, myo = self.curPos
+            xDiff = mx - mxo
+            yDiff = my - myo
 
             # Dragging
             if self.pressMode == 0:
-                xDiff = mx - mxo
-                yDiff = my - myo
-
                 x += xDiff
                 y += yDiff
                 w -= xDiff - xDiff
                 h -= yDiff - yDiff
-
-                self.selPos = (x, y, w, h)
 
             # Creating
             elif self.pressMode == 1:
                 w = event.x() - x
                 h = event.y() - y
 
-                self.selPos = (x, y, w, h)
+            # Resize left
+            elif self.pressMode == 2:
+                x += xDiff
+                w -= xDiff
+
+            # Resize top
+            elif self.pressMode == 3:
+                y += yDiff
+                h -= yDiff
+
+            # Resize right
+            elif self.pressMode == 4:
+                w += xDiff
+
+            # Resize bottom
+            elif self.pressMode == 5:
+                h += yDiff
+
+            # Resize top-left
+            elif self.pressMode == 6:
+                x += xDiff
+                w -= xDiff
+
+                y += yDiff
+                h -= yDiff
+
+            # Resize top-right
+            elif self.pressMode == 7:
+                w += xDiff
+
+                y += yDiff
+                h -= yDiff
+
+            # Resize bottom-right
+            elif self.pressMode == 8:
+                w += xDiff
+
+                h += yDiff
+
+            # Resize bottom-left
+            elif self.pressMode == 9:
+                x += xDiff
+                w -= xDiff
+
+                h += yDiff
+
+
+
+
+            self.selPos = (x, y, w, h)
 
             if w < 0:
                 x, w = x + w, -w
