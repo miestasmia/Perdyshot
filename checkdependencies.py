@@ -4,15 +4,23 @@ import imp, os, sys, subprocess
 
 from distutils import spawn
 
+import pip
+
+dirname = os.path.dirname(__file__)
+sys.path.append(os.path.join(dirname, "cli"))
+import wireutils
+wireutils.cprintconf.name = "Perdyshot"
+wireutils.cprintconf.color= wireutils.bcolors.DARKCYAN
+
 def readBool(text):
-    reply = raw_input(text + ' (y/n): ')
+    reply = wireutils.cinput(text + ' (y/n): ')
 
     if reply == 'y':
         return True
     elif reply == 'n':
         return False
     else:
-        print "Invalid option. Please answer y or n for yes or no."
+        wireutils.cprint("Invalid option. Please answer y or n for yes or no.")
 
     return readBool(text)
 
@@ -25,7 +33,7 @@ def hasModule(name):
 
 def checkModule(name):
     installed = hasModule(name)
-    print "Module %s installed: %s" % (name, installed)
+    wireutils.cprint("Module {name} installed: {installed}", name=name, installed=installed)
 
     return installed
 
@@ -43,7 +51,7 @@ def manualInstallNotify(name, tutorial):
 
 def checkApplication(name, friendlyName, tutorial):
     installed = spawn.find_executable(name) != None
-    print "Executable %s (%s) found: %s " % (name, friendlyName, installed)
+    wireutils.cprint("Executable {name} ({readable}) found: {installed} ", name=name, readable=friendlyName, installed=installed)
 
     if not installed:
         manualInstallNotify(friendlyName, tutorial)
@@ -52,46 +60,47 @@ def checkApplication(name, friendlyName, tutorial):
 
 
 
+try:
+    wireutils.cprint("""Perdyshot dependency checker
+                        ============================\n""",
+                        strip=True)
 
-print "Perdyshot dependency checker"
-print "============================\n"
+    ROOT = os.geteuid() == 0
 
-ROOT = os.geteuid() == 0
+    if not ROOT:
+        if not readBool("You're not root. Installing missing packages will not be supported. Do you wish to continue?"):
+            sys.exit()
 
-if not ROOT:
-    if not readBool("You're not root. Installing missing packages will not be supported. Do you wish to continue?"):
-        sys.exit()
-
-print "\nChecking module dependencies for Perdyshot ...\n"
-
-
-
-if moduleNeedsInstalling("argparse"):
-    subprocess.call(["pip2", "install", "-U", "argparse"])
-
-if moduleNeedsInstalling("configobj"):
-    subprocess.call(["pip2", "install", "-U", "configobj"])
-
-if not checkModule("gi"):
-    manualInstallNotify("gi", "http://python-gtk-3-tutorial.readthedocs.org/en/latest/install.html")
-
-if moduleNeedsInstalling("gtk"):
-    subprocess.call(["pip2", "install", "-U", "PyGTK"])
-
-if moduleNeedsInstalling("PIL"):
-    subprocess.call(["pip2", "install", "-U", "Pillow"])
-
-if not checkModule("PyQt4"):
-    manualInstallNotify("PyQt4", "http://pyqt.sourceforge.net/Docs/PyQt4/installation.html")
-
-if moduleNeedsInstalling("validate"):
-    subprocess.call(["pip2", "install", "-U", "validate"])
+    wireutils.cprint("Checking module dependencies for Perdyshot ...")
 
 
 
-print "\nChecking application dependencies for Perdyshot ... \n"
+    if moduleNeedsInstalling("argparse"):
+        pip.main(["install", "-U", "argparse"])
+
+    if moduleNeedsInstalling("configobj"):
+        pip.main(["install", "-U", "configobj"])
+
+    if not checkModule("gi"):
+        manualInstallNotify("gi", "http://python-gtk-3-tutorial.readthedocs.org/en/latest/install.html")
+
+    if moduleNeedsInstalling("gtk"):
+        pip.main(["install", "-U", "PyGTK"])
+
+    if moduleNeedsInstalling("PIL"):
+        pip.main(["install", "-U", "Pillow"])
+
+    if not checkModule("PyQt4"):
+        manualInstallNotify("PyQt4", "http://pyqt.sourceforge.net/Docs/PyQt4/installation.html")
+
+    if moduleNeedsInstalling("validate"):
+        pip.main(["install", "-U", "validate"])
 
 
 
-checkApplication("convert", "ImageMagick", "http://www.imagemagick.org/script/binary-releases.php")
+    wireutils.cprint("Checking application dependencies for Perdyshot ... \n")
 
+
+
+    checkApplication("convert", "ImageMagick", "http://www.imagemagick.org/script/binary-releases.php")
+except (KeyboardInterrupt, EOFError): print
