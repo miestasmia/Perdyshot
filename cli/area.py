@@ -84,7 +84,9 @@ class AreaWindow(QtGui.QWidget):
         x, y = event.x(), event.y()
         dx, dy, dw, dh = self.selDims
 
-        if event.button() == Qt.LeftButton:
+        button = event.button()
+
+        if button == Qt.LeftButton:
             self.leftPressed = True
 
             self.pressMode = self.getPositionPressMode(x, y)
@@ -96,11 +98,23 @@ class AreaWindow(QtGui.QWidget):
                 self.selPos = (x, y, 0, 0)
                 self.selDims = (0, 0, 0, 0)
 
-                self.selection.setRect(self.selPos[0], self.selPos[1], 0, 0)
+                self.selection.setRect(x, y, 0, 0)
                 self.coverLeft.setRect(0, 0, self.width(), self.height())
                 self.coverRight.setRect(0, 0, 0, 0)
                 self.coverTop.setRect(0, 0, 0, 0)
                 self.coverBottom.setRect(0, 0, 0, 0)
+
+        elif button == Qt.RightButton:
+            self.pressMode = None
+
+            self.selPos = (0, 0, 0, 0)
+            self.selDims = (0, 0, 0, 0)
+
+            self.selection.setRect(0, 0, 0, 0)
+            self.coverLeft.setRect(0, 0, self.width(), self.height())
+            self.coverRight.setRect(0, 0, 0, 0)
+            self.coverTop.setRect(0, 0, 0, 0)
+            self.coverBottom.setRect(0, 0, 0, 0)
 
         self.updateCursor()
 
