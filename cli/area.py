@@ -8,6 +8,7 @@ import os, sys, signal
 from gtk import gdk
 
 from PyQt4 import QtGui, QtCore
+Qt = QtCore.Qt
 
 dir = os.path.dirname(os.path.realpath(__file__))
 cwd = os.getcwd()
@@ -21,13 +22,13 @@ class AreaWindow(QtGui.QWidget):
 
         self.setContentsMargins(-1, -1, -1, -1) # Hacky af but it works
 
-        self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
 
         self.scene = QtGui.QGraphicsScene()
 
         self.view = QtGui.QGraphicsView(self.scene)
-        self.view.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.view.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.view.mouseMoveEvent = self.mouseMoveEvent
 
         self.layout = QtGui.QVBoxLayout()
@@ -39,6 +40,9 @@ class AreaWindow(QtGui.QWidget):
         self.scene.addItem(self.background)
 
         self.selection = QtGui.QGraphicsRectItem(QtCore.QRectF(0, 0, 0, 0))
+        selectionPen = QtGui.QPen(QtGui.QColor(0xffffff))
+        selectionPen.setStyle(Qt.DashLine)
+        self.selection.setPen(selectionPen)
         self.scene.addItem(self.selection)
 
         self.pressed = False
