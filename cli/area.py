@@ -104,6 +104,7 @@ class AreaWindow(QtGui.QWidget):
 
     def mouseMoveEvent(self, event):
         if self.leftPressed:
+            tw, th = self.width(), self.height()
             x, y, w, h = self.selPos
             mx, my = event.x(), event.y()
             mxo, myo = self.curPos
@@ -136,10 +137,10 @@ class AreaWindow(QtGui.QWidget):
             self.selDims = (x, y, w, h)
 
             self.selection.setRect(x, y, w, h)
-            self.coverLeft.setRect(0, 0, x, self.height())
-            self.coverRight.setRect(x + w, 0, self.width(), self.height())
+            self.coverLeft.setRect(0, 0, x, th)
+            self.coverRight.setRect(x + w, 0, tw, th)
             self.coverTop.setRect(x, 0, w, y)
-            self.coverBottom.setRect(x, y + h, w, self.height() - y - h)
+            self.coverBottom.setRect(x, y + h, w, th - y - h)
 
         self.curPos = (event.x(), event.y())
         self.updateCursor()
