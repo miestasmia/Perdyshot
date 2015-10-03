@@ -30,6 +30,8 @@ class AreaWindow(QtGui.QWidget):
         self.view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.view.mouseMoveEvent = self.mouseMoveEvent
+        self.view.mousePressEvent = self.mousePressEvent
+        self.view.mouseReleaseEvent = self.mouseReleaseEvent
 
         self.layout = QtGui.QVBoxLayout()
         self.layout.setContentsMargins(0, 0, 0, 0)
