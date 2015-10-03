@@ -35,12 +35,18 @@ class AreaWindow(QtGui.QWidget):
         self.layout.addWidget(self.view)
         self.setLayout(self.layout)
 
-        self.selection = self.scene.addRect(QtCore.QRectF(0, 0, 0, 0), QtGui.QPen(QtGui.QColor(255, 255, 255)))
+        self.background = QtGui.QGraphicsPixmapItem(QtGui.QPixmap('/tmp/perdyselection.png'))
+        self.scene.addItem(self.background)
+
+        self.selection = QtGui.QGraphicsRectItem(QtCore.QRectF(0, 0, 0, 0))
+        self.scene.addItem(self.selection)
 
         self.pressed = False
 
     def mousePressEvent(self, event):
-        self.selection.setRect(0, 0, 0, 0)
+        self.pressPosition = (event.x(), event.y())
+
+        self.selection.setRect(self.pressPosition[0], self.pressPosition[1], 0, 0)
 
         self.pressed = True
 
@@ -49,11 +55,11 @@ class AreaWindow(QtGui.QWidget):
 
     def mouseMoveEvent(self, event):
         if self.pressed: # Doesn't draw for some reason
-            self.selection.setRect(self.selection.x(), self.selection.y(), event.pos().x() - self.selection.x(), event.pos().y() - self.selection.y())
+            self.selection.setRect(self.pressPosition[0], self.pressPosition[1], event.pos().x() - self.pressPosition[0], event.pos().y() - self.pressPosition[1])
 
 
 
-areaWindow = AreaWindow()
+areaWindow = None
 
 def activate():
     screen = gdk.screen_get_default()
@@ -61,15 +67,13 @@ def activate():
     screenWidth  = screen.get_width()
     screenHeight = screen.get_height()
 
-    areaWindow.move(0, 0)
-    areaWindow.setFixedSize(screenWidth, screenHeight)
-
     pixbuf = gdk.Pixbuf(gdk.COLORSPACE_RGB, True, 8, screenWidth, screenHeight)
     screenshot = gdk.Pixbuf.get_from_drawable(pixbuf, gdk.get_default_root_window(), gdk.colormap_get_system(), 0, 0, 0, 0, screenWidth, screenHeight)
     screenshot.save('/tmp/perdyselection.png', 'png')
 
-    areaWindow.background = QtGui.QGraphicsPixmapItem(QtGui.QPixmap('/tmp/perdyselection.png'), None, areaWindow.scene)
-
+    areaWindow = AreaWindow()
+    areaWindow.move(0, 0)
+    areaWindow.setFixedSize(screenWidth, screenHeight)
     areaWindow.show()
 
 if __name__ == '__main__':
