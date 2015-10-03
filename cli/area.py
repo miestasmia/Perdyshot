@@ -24,6 +24,8 @@ class AreaWindow(QtGui.QWidget):
 
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
 
+        self.setCursor(Qt.CrossCursor)
+
         self.scene = QtGui.QGraphicsScene()
 
         self.view = QtGui.QGraphicsView(self.scene)
