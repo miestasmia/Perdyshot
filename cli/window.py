@@ -70,7 +70,6 @@ def main(argSource):
 
     # And its size
     screenSize = (root.get_width(), root.get_height())
-    print "Screen size: %sx%s" % screenSize
 
     # Get the active window
     window = root.get_active_window()
@@ -97,23 +96,15 @@ def main(argSource):
 
     # Check if the window has a custom titlebar
     hascustomtitlebar = (y + 2 == decoY)
-    print "Custom titlebar:", hascustomtitlebar
-
-    print "Coordinates: (%s, %s)" % (x, y)
-    print "Window decoration coordinates: (%s, %s)" % (y, decoY)
 
     # Add the dimensions of the decorations to window dimensions
     width  += x - decoX + 1
     height += y - decoY - 1
 
-    print "Size (estimate): %sx%s" % (width, height)
-
     windowType = window.get_type_hint()
-    print "Window type hint:", windowType
 
     # Get its WM_CLASS
     WM_CLASS = window.property_get('WM_CLASS')[2].split('\x00')[0]
-    print "WM_CLASS:", WM_CLASS
 
     # Read the config file and figure out the settings
     settings = {}
@@ -196,22 +187,10 @@ def main(argSource):
     geometry = window.get_geometry()
     bounds = window.get_frame_extents()
 
-    print "Monitor:", monitorid
-    print "Monitor geometry: (%s, %s) %sx%s" % (monitor.x, monitor.y, monitor.width, monitor.height)
-    print "Window geometry: (%s, %s) %sx%s %s bit" % geometry
-    print "Window bounding box: (%s, %s) %sx%s" % (bounds.x, bounds.y, bounds.width, bounds.height)
-
 
     # This is an estimate by a long-shot, but it's usually about right
     # At least on Pantheon, the gtk.gdk.WINDOW_STATE_MAXIMIZED state isn't set, so we resort to this
     maximized = height + 31 >= monitor.height and bounds.y - monitor.y + bounds.height == monitor.height
-
-    print "Maximised:", maximized
-
-    print "Application-specific settings:"
-    print "\tsizeBugged:",  settings['sizeBugged']
-    print "\troundTop:",    settings['roundTop']
-    print "\troundBottom:", settings['roundBottom']
 
     sizeBugged = args['size_bugged'] if args['size_bugged'] != None else settings['sizeBugged']
     if sizeBugged == 1 or (sizeBugged == 2 and not(windowType & gdk.WINDOW_TYPE_HINT_DIALOG)):
