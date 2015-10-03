@@ -54,12 +54,23 @@ class AreaWindow(QtGui.QWidget):
         self.pressed = False
 
     def mouseMoveEvent(self, event):
-        if self.pressed: # Doesn't draw for some reason
-            self.selection.setRect(self.pressPosition[0], self.pressPosition[1], event.pos().x() - self.pressPosition[0], event.pos().y() - self.pressPosition[1])
+        if self.pressed:
+            x = self.pressPosition[0]
+            y = self.pressPosition[1]
+            w = event.pos().x() - x
+            h = event.pos().y() - y
+
+            if w < 0:
+                x, w = x + w, -w
+
+            if h < 0:
+                y, h = y + h, -h
+
+            self.selection.setRect(x, y, w, h)
 
 
 
-areaWindow = AreaWindow()
+areaWindow = None
 
 def activate():
     screen = gdk.screen_get_default()
@@ -70,6 +81,8 @@ def activate():
     pixbuf = gdk.Pixbuf(gdk.COLORSPACE_RGB, True, 8, screenWidth, screenHeight)
     screenshot = gdk.Pixbuf.get_from_drawable(pixbuf, gdk.get_default_root_window(), gdk.colormap_get_system(), 0, 0, 0, 0, screenWidth, screenHeight)
     screenshot.save('/tmp/perdyselection.png', 'png')
+
+    areaWindow = AreaWindow()
     areaWindow.move(0, 0)
     areaWindow.setFixedSize(screenWidth, screenHeight)
     areaWindow.show()
