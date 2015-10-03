@@ -75,23 +75,25 @@ class AreaWindow(QtGui.QWidget):
         self.scene.addItem(self.selection)
 
         self.leftPressed = False
-        self.pressMode = None # 0: Dragging, 1: Creating
+        self.pressMode = None # 0: Dragging,  1: Creating,  2: Resize left,  3: Resize top,  4: Resize right,  5: Resize bottom
         self.selPos = (0, 0)
         self.selDims = (0, 0, 0, 0)
         self.curPos = (0, 0)
 
     def mousePressEvent(self, event):
+        x, y = event.x(), event.y()
+        dx, dy, dw, dh = self.selDims
+
         if event.button() == Qt.LeftButton:
             self.leftPressed = True
 
-            # If clicking inside the current selection
-            if event.x() in xrange(self.selDims[0], self.selDims[0] + self.selDims[2]) and event.y() in xrange(self.selDims[1], self.selDims[1] + self.selDims[3]):
-                self.pressMode = 0
-            # Outside the current selection
-            else:
+            self.pressMode = self.getPositionPressMode(x, y)
+
+            # Creating
+            if self.pressMode == 1:
                 self.pressMode = 1
 
-                self.selPos = (event.x(), event.y(), 0, 0)
+                self.selPos = (x, y, 0, 0)
                 self.selDims = (0, 0, 0, 0)
 
                 self.selection.setRect(self.selPos[0], self.selPos[1], 0, 0)
@@ -117,7 +119,7 @@ class AreaWindow(QtGui.QWidget):
             mx, my = event.x(), event.y()
             mxo, myo = self.curPos
 
-            # In the current selection
+            # Dragging
             if self.pressMode == 0:
                 xDiff = mx - mxo
                 yDiff = my - myo
@@ -129,7 +131,7 @@ class AreaWindow(QtGui.QWidget):
 
                 self.selPos = (x, y, w, h)
 
-            # Outside the current selection
+            # Creating
             elif self.pressMode == 1:
                 w = event.x() - x
                 h = event.y() - y
@@ -158,6 +160,34 @@ class AreaWindow(QtGui.QWidget):
         if event.key() == Qt.Key_Escape:
             sys.exit()
 
+    def getPositionPressMode(self, x, y):
+        dx, dy, dw, dh = self.selDims
+
+        # Dragging
+        if x in xrange(dx + 8, dx + dw - 8) and y in xrange(dy + 8, dy + dh - 8):
+            return 0
+
+        # Resize left
+        elif x in xrange(dx - 8, dx + 8) and y in xrange(dy, dy + dh):
+            return 2
+
+        # Resize top
+        elif x in xrange(dx, dx + dw) and y in xrange(dy - 8, dy + 8):
+            return 3
+
+        # Resize right
+        elif x in xrange(dx + dw - 8, dx + dw + 8) and y in xrange(dy, dy + dh):
+            return 4
+
+        # Resize bottom
+        elif x in xrange(dx, dx + dw) and y in xrange(dy + dh - 8, dy + dh + 8):
+            return 5
+
+        # Creating
+        else:
+            return 1
+
+
     # Set the cursor according to its position
     def updateCursor(self):
         x, y = self.curPos
@@ -165,15 +195,26 @@ class AreaWindow(QtGui.QWidget):
         rx, ry, rw, rh = self.selDims
         rx2, ry2 = rx + rw, ry + rh
 
-        # Inside the selection
-        if x in xrange(rx, rx2) and y in xrange(ry, ry2):
+        mode = self.getPositionPressMode(x, y)
+
+        # Dragging
+        if mode == 0:
             if self.leftPressed:
                 self.setCursor(Qt.ClosedHandCursor)
             else:
                 self.setCursor(Qt.OpenHandCursor)
-        # Outside the selection
-        else:
+
+        # Creating
+        elif mode == 1:
             self.setCursor(Qt.CrossCursor)
+
+        # Resize left
+        elif mode == 2 or mode == 4:
+            self.setCursor(Qt.SizeHorCursor)
+
+        elif mode == 3 or mode == 5:
+            self.setCursor(Qt.SizeVerCursor)
+
 
 
 
