@@ -75,6 +75,7 @@ class AreaWindow(QtGui.QWidget):
         self.scene.addItem(self.selection)
 
         self.leftPressed = False
+        self.pressMode = None # 0: Dragging, 1: Creating
         self.selPos = (0, 0)
         self.selDims = (0, 0, 0, 0)
         self.curPos = (0, 0)
@@ -83,8 +84,13 @@ class AreaWindow(QtGui.QWidget):
         if event.button() == Qt.LeftButton:
             self.leftPressed = True
 
-            # If clicking outside the current selection
-            if not (event.x() in xrange(self.selDims[0], self.selDims[0] + self.selDims[2]) and event.y() in xrange(self.selDims[1], self.selDims[1] + self.selDims[3])):
+            # If clicking inside the current selection
+            if event.x() in xrange(self.selDims[0], self.selDims[0] + self.selDims[2]) and event.y() in xrange(self.selDims[1], self.selDims[1] + self.selDims[3]):
+                self.pressMode = 0
+            # Outside the current selection
+            else:
+                self.pressMode = 1
+
                 self.selPos = (event.x(), event.y(), 0, 0)
                 self.selDims = (0, 0, 0, 0)
 
@@ -99,6 +105,7 @@ class AreaWindow(QtGui.QWidget):
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.leftPressed = False
+            self.pressMode = None
 
         self.updateCursor()
 
@@ -111,7 +118,7 @@ class AreaWindow(QtGui.QWidget):
             mxo, myo = self.curPos
 
             # In the current selection
-            if mx in xrange(dx, dx + dw) and my in xrange(dy, dy + dh):
+            if self.pressMode == 0:
                 xDiff = mx - mxo
                 yDiff = my - myo
 
@@ -123,7 +130,7 @@ class AreaWindow(QtGui.QWidget):
                 self.selPos = (x, y, w, h)
 
             # Outside the current selection
-            else:
+            elif self.pressMode == 1:
                 w = event.x() - x
                 h = event.y() - y
 
