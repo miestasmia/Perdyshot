@@ -3,20 +3,14 @@
 from configobj import ConfigObj
 from validate import Validator
 
+import argparse
+
 from gtk import gdk
 
 # We use PIL for simple tasks and ImageMagick for computationally-heavy tasks
 from PIL import Image, ImageOps
 
-import subprocess
-
-import time
-
-import sys
-
-import os
-
-import argparse
+import subprocess, time, sys, os, signal
 
 def main(argSource):
     dir = os.path.dirname(os.path.realpath(__file__))
@@ -366,3 +360,5 @@ def main(argSource):
 
 if __name__ == '__main__':
     main(sys.argv[1:])
+
+signal.signal(signal.SIGINT, signal.SIG_DFL)
