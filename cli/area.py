@@ -77,7 +77,8 @@ class AreaWindow(QtGui.QWidget):
             self.pressed = True
 
     def mouseReleaseEvent(self, event):
-        self.pressed = False
+        if event.button() == Qt.LeftButton:
+            self.pressed = False
 
     def mouseMoveEvent(self, event):
         if self.pressed:
