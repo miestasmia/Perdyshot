@@ -7,7 +7,7 @@ from distutils import spawn
 import pip
 
 dirname = os.path.dirname(__file__)
-sys.path.append(os.path.join(dirname, "cli"))
+sys.path.append(os.path.join(dirname, "lib"))
 import wireutils
 wireutils.cprintconf.name = "Perdyshot"
 wireutils.cprintconf.color= wireutils.bcolors.DARKCYAN
