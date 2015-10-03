@@ -74,18 +74,18 @@ class AreaWindow(QtGui.QWidget):
         self.selection.setPen(selectionPen)
         self.scene.addItem(self.selection)
 
-        self.pressed = False
-
+        self.leftPressed = False
         self.selPos = (0, 0)
         self.selDims = (0, 0, 0, 0)
+        self.curPos = (0, 0)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
-            self.pressed = True
+            self.leftPressed = True
 
             # If clicking outside the current selection
             if not (event.x() in xrange(self.selDims[0], self.selDims[0] + self.selDims[2]) and event.y() in xrange(self.selDims[1], self.selDims[1] + self.selDims[3])):
-                self.selPos = (event.x(), event.y())
+                self.selPos = (event.x(), event.y(), 0, 0)
                 self.selDims = (0, 0, 0, 0)
 
                 self.selection.setRect(self.selPos[0], self.selPos[1], 0, 0)
@@ -94,37 +94,55 @@ class AreaWindow(QtGui.QWidget):
                 self.coverTop.setRect(0, 0, 0, 0)
                 self.coverBottom.setRect(0, 0, 0, 0)
 
-        self.updateCursor(event.x(), event.y())
+        self.updateCursor()
 
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
-            self.pressed = False
+            self.leftPressed = False
 
-        self.updateCursor(event.x(), event.y())
+        self.updateCursor()
 
     def mouseMoveEvent(self, event):
-        if self.pressed:
-            if not (event.x() in xrange(self.selDims[0], self.selDims[0] + self.selDims[2]) and event.y() in xrange(self.selDims[1], self.selDims[1] + self.selDims[3])):
-                x = self.selPos[0]
-                y = self.selPos[1]
+        if self.leftPressed:
+            x, y, w, h = self.selPos
+            mx, my = event.x(), event.y()
+            mxo, myo = self.curPos
+
+            # In the current selection
+            if mx in xrange(self.selDims[0], self.selDims[0] + self.selDims[2]) and my in xrange(self.selDims[1], self.selDims[1] + self.selDims[3]):
+                xDiff = mx - mxo
+                yDiff = my - myo
+
+                x += xDiff
+                y += yDiff
+                w -= xDiff - xDiff
+                h -= yDiff - yDiff
+
+                self.selPos = (x, y, w, h)
+
+            # Outside the current selection
+            else:
                 w = event.x() - x
                 h = event.y() - y
 
-                if w < 0:
-                    x, w = x + w, -w
+                self.selPos = (x, y, w, h)
 
-                if h < 0:
-                    y, h = y + h, -h
+            if w < 0:
+                x, w = x + w, -w
 
-                self.selDims = (x, y, w, h)
+            if h < 0:
+                y, h = y + h, -h
 
-                self.selection.setRect(x, y, w, h)
-                self.coverLeft.setRect(0, 0, x, self.height())
-                self.coverRight.setRect(x + w, 0, self.width(), self.height())
-                self.coverTop.setRect(x, 0, w, y)
-                self.coverBottom.setRect(x, y + h, w, self.height() - y - h)
+            self.selDims = (x, y, w, h)
 
-        self.updateCursor(event.x(), event.y())
+            self.selection.setRect(x, y, w, h)
+            self.coverLeft.setRect(0, 0, x, self.height())
+            self.coverRight.setRect(x + w, 0, self.width(), self.height())
+            self.coverTop.setRect(x, 0, w, y)
+            self.coverBottom.setRect(x, y + h, w, self.height() - y - h)
+
+        self.curPos = (event.x(), event.y())
+        self.updateCursor()
 
 
     def keyPressEvent(self, event):
@@ -132,13 +150,15 @@ class AreaWindow(QtGui.QWidget):
             sys.exit()
 
     # Set the cursor according to its position
-    def updateCursor(self, x, y):
+    def updateCursor(self):
+        x, y = self.curPos
+
         rx, ry, rw, rh = self.selDims
         rx2, ry2 = rx + rw, ry + rh
 
         # Inside the selection
         if x in xrange(rx, rx2) and y in xrange(ry, ry2):
-            if self.pressed:
+            if self.leftPressed:
                 self.setCursor(Qt.ClosedHandCursor)
             else:
                 self.setCursor(Qt.OpenHandCursor)
