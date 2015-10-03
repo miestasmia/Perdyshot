@@ -29,6 +29,7 @@ class AreaWindow(QtGui.QWidget):
         self.scene = QtGui.QGraphicsScene()
 
         self.view = QtGui.QGraphicsView(self.scene)
+        self.view.setFocusPolicy(Qt.NoFocus)
         self.view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
@@ -76,7 +77,7 @@ class AreaWindow(QtGui.QWidget):
 
         self.leftPressed = False
         self.pressMode = None # 0: Dragging,  1: Creating,  2: Resize left,  3: Resize top,  4: Resize right,  5: Resize bottom,  6: Resize top-left,  7: Resize top-right,  8: Resize bottom-right,  9: Resize bottom-left
-        self.selPos = (0, 0)
+        self.selPos = (0, 0, 0, 0)
         self.selDims = (0, 0, 0, 0)
         self.curPos = (0, 0)
 
@@ -217,8 +218,48 @@ class AreaWindow(QtGui.QWidget):
 
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Escape:
+        key = event.key()
+
+        tw, th = self.width(), self.height()
+        x, y, w, h = self.selPos
+        dx, dy, dw, dh = self.selDims
+
+        if key == Qt.Key_Escape:
             sys.exit()
+
+        elif key in [Qt.Key_Left, Qt.Key_Up, Qt.Key_Right, Qt.Key_Down]:
+            diffx = 0
+            diffy = 0
+
+            if key == Qt.Key_Left:
+                diffx = -1
+
+            elif key == Qt.Key_Up:
+                diffy = -1
+
+            elif key == Qt.Key_Right:
+                diffx = 1
+
+            elif key == Qt.Key_Down:
+                diffy = 1
+
+            x  += diffx
+            dx += diffx
+
+            y  += diffy
+            dy += diffy
+
+            self.selPos = (x, y, w, h)
+            self.selDims = (dx, dy, dw, dh)
+
+            self.selection.setRect(dx, dy, dw, dh)
+            self.coverLeft.setRect(0, 0, x, th)
+            self.coverRight.setRect(x + w, 0, tw, th)
+            self.coverTop.setRect(x, 0, w, y)
+            self.coverBottom.setRect(x, y + h, w, th - y - h)
+
+
+
 
     def getPositionPressMode(self, x, y):
         dx, dy, dw, dh = self.selDims
