@@ -3,7 +3,11 @@
 from configobj import ConfigObj
 from validate import Validator
 
-import argparse, os, sys, signal, time
+import argparse, os, sys, signal, time, temppath
+
+import wireutils
+wireutils.cprintconf.name = "Perdyshot"
+wireutils.cprintconf.color= wireutils.bcolors.DARKCYAN
 
 from gtk import gdk
 
@@ -14,13 +18,13 @@ from PIL import Image
 
 
 def main(argSource):
-    dir = os.path.dirname(os.path.realpath(__file__))
+    dirname = os.path.dirname(os.path.realpath(__file__))
     cwd = os.getcwd()
 
     app = QtGui.QApplication(sys.argv)
 
 
-    version = 'Perdyshot ' + open(dir + '/../.version', 'r').read()
+    version = 'Perdyshot ' + open(os.path.join(dirname, os.path.pardir, '.version'), 'r').read()
 
     parser = argparse.ArgumentParser(description = 'Takes a perdy screenshot of an area selection.')
 
@@ -30,10 +34,10 @@ def main(argSource):
 
     args = vars(parser.parse_args(argSource))
 
-    config = ConfigObj(dir + '/../perdyshot.conf', encoding = 'UTF8', configspec = dir + '/../perdyshot.conf.spec')
+    config = ConfigObj(os.path.join(dirname, os.path.pardir, 'perdyshot.conf'), encoding = 'UTF8', configspec = os.path.join(dirname, os.path.pardir, 'perdyshot.conf.spec'))
     validator = Validator()
     if not config.validate(validator):
-        print "Invalid configuration file"
+        wireutils.cprint("Invalid configuration file", color=wireutils.bcolors.DARKRED)
         sys.exit(1)
 
 
@@ -70,7 +74,7 @@ def main(argSource):
             self.layout.addWidget(self.view)
             self.setLayout(self.layout)
 
-            self.background = QtGui.QGraphicsPixmapItem(QtGui.QPixmap('/tmp/perdyselection.png'))
+            self.background = QtGui.QGraphicsPixmapItem(QtGui.QPixmap(os.path.join(tempfile.gettempdir(), 'perdyselection.png')))
             self.scene.addItem(self.background)
 
             coverBrush = QtGui.QBrush(QtGui.QColor(0, 0, 0, 128))
@@ -388,7 +392,7 @@ def main(argSource):
             filename = args['file'] if args['file'] != None else settings['filename']
             filename = time.strftime(filename)
 
-            image = Image.open('/tmp/perdyselection.png')
+            image = Image.open(os.path.join(tempfile.gettempdir(), 'perdyselection.png'))
             image = image.crop((x, y, x + w, y + h))
             image.save(filename, 'png')
 
@@ -408,7 +412,7 @@ def main(argSource):
 
         pixbuf = gdk.Pixbuf(gdk.COLORSPACE_RGB, True, 8, screenWidth, screenHeight)
         screenshot = gdk.Pixbuf.get_from_drawable(pixbuf, gdk.get_default_root_window(), gdk.colormap_get_system(), 0, 0, 0, 0, screenWidth, screenHeight)
-        screenshot.save('/tmp/perdyselection.png', 'png')
+        screenshot.save(os.path.join(tempfile.gettempdir(), 'perdyselection.png'), 'png')
 
         areaWindow = AreaWindow(screenWidth, screenHeight)
         areaWindow.move(0, 0)
@@ -421,6 +425,8 @@ def main(argSource):
     app.exec_()
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    try:
+        main(sys.argv[1:])
+    except (KeyboardInterrupt, EOFError): print
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)

@@ -5,6 +5,10 @@ from validate import Validator
 
 import argparse
 
+import wireutils
+wireutils.cprintconf.name = "Perdyshot"
+wireutils.cprintconf.color= wireutils.bcolors.DARKCYAN
+
 from gtk import gdk
 
 # We use PIL for simple tasks and ImageMagick for computationally-heavy tasks
@@ -13,10 +17,10 @@ from PIL import Image, ImageOps
 import subprocess, time, sys, os, signal
 
 def main(argSource):
-    dir = os.path.dirname(os.path.realpath(__file__))
+    dirname = os.path.dirname(os.path.realpath(__file__))
     cwd = os.getcwd()
 
-    version = 'Perdyshot ' + open(dir + '/../.version', 'r').read()
+    version = 'Perdyshot ' + open(os.path.join(dirname, os.path.pardir, '.version'), 'r').read()
 
     parser = argparse.ArgumentParser(description = 'Takes a perdy screenshot of the active window.')
 
@@ -39,15 +43,15 @@ def main(argSource):
 
     args = vars(parser.parse_args(argSource))
 
-    config = ConfigObj(dir + '/../perdyshot.conf', encoding = 'UTF8', configspec = dir + '/../perdyshot.conf.spec')
+    config = ConfigObj(os.path.join(dirname, os.path.pardir, 'perdyshot.conf'), encoding = 'UTF8', configspec = os.path.join(dirname, os.path.pardir, 'perdyshot.conf.spec'))
     validator = Validator()
     if not config.validate(validator):
-        print "Invalid configuration file"
+        wireutils.cprint("Invalid configuration file", color=wireutils.bcolors.DARKRED)
         sys.exit(1)
 
 
 
-    print "Please select the window to be captured\n"
+    wireutils.cprint("Please select the window to be captured\n")
     time.sleep(args['delay'])
 
     startTime = time.time()
@@ -75,7 +79,7 @@ def main(argSource):
     window = root.get_active_window()
 
     if window == None:
-        print "Failed to capture window, exiting."
+        wireutils.cprint("Failed to capture window, exiting.", color=wireutils.bcolors.DARKRED)
         sys.exit(1)
 
     # And its geometry
@@ -121,22 +125,22 @@ def main(argSource):
     if config['Settings']['cornerImage'] == '':
         settings['cornerImage'] = None
     else:
-        settings['cornerImage'] = Image.open(dir + '/' + config['Settings']['cornerImage'])
+        settings['cornerImage'] = Image.open(os.path.join(dirname, config['Settings']['cornerImage']))
 
     if config['Settings']['cornerImageDM'] == '':
         settings['cornerImageDM'] = None
     else:
-        settings['cornerImageDM'] = Image.open(dir + '/' + config['Settings']['cornerImageDM'])
+        settings['cornerImageDM'] = Image.open(os.path.join(dirname, config['Settings']['cornerImageDM']))
 
     if config['Settings']['borderImage'] == '':
         settings['borderImage'] = None
     else:
-        settings['borderImage'] = Image.open(dir + '/' + config['Settings']['borderImage'])
+        settings['borderImage'] = Image.open(os.path.join(dirname, config['Settings']['borderImage']))
 
     if config['Settings']['borderImageDM'] == '':
         settings['borderImageDM'] = None
     else:
-        settings['borderImageDM'] = Image.open(dir + '/' + config['Settings']['borderImageDM'])
+        settings['borderImageDM'] = Image.open(os.path.join(dirname, config['Settings']['borderImageDM']))
 
 
     if WM_CLASS in config['Applications']:
@@ -313,11 +317,11 @@ def main(argSource):
 
 
     # Save the image with PIL for modification with ImageMagick
-    image.save('/tmp/perdyshot.png', 'png')
+    image.save(os.path.join(tempfile.gettempdir(), 'perdyshot.png'), 'png')
 
     # Apply a shadow
     shadowColour = args['shadow'] if args['shadow'] != None else settings['shadow']
-    command  = "convert /tmp/perdyshot.png -bordercolor none -border 64x64 -repage +48+48 \( +clone -background \"" + shadowColour + "\" -shadow 100x24+0+32 \) +swap -background none -mosaic"
+    command  = "convert " + os.path.join(tempfile.gettempdir(), 'perdyshot.png') + " -bordercolor none -border 64x64 -repage +48+48 \( +clone -background \"" + shadowColour + "\" -shadow 100x24+0+32 \) +swap -background none -mosaic"
 
     # Change the background if necessary
     background = args['background'] if args['background'] != '' else settings['background']
@@ -330,14 +334,17 @@ def main(argSource):
     subprocess.check_output(command + " " + filename, shell = True)
 
     totalTime = time.time()
-    print "\nScreenshot time: %.2f seconds" % (partialTime - startTime)
-    print "Post-processing time: %.2f seconds" % (totalTime - partialTime)
-    print "Total time: %.2f seconds" % (totalTime - startTime)
-
-    print "\nSaved as " + filename
+    print # An empty line.
+    wireutils.cprint("Screenshot time: %.2f seconds" % (partialTime - startTime))
+    wireutils.cprint("Post-processing time: %.2f seconds" % (totalTime - partialTime))
+    wireutils.cprint("Total time: %.2f seconds" % (totalTime - startTime))
+    print
+    wireutils.cprint("Saved as {fname}.", fname=filename)
 
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    try:
+        main(sys.argv[1:])
+    except (KeyboardInterrupt, EOFError): print
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)

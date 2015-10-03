@@ -4,12 +4,12 @@ import os, sys, subprocess, signal
 from PyQt4 import QtGui, QtCore
 from gi.repository import Notify
 
-dir = os.path.dirname(os.path.realpath(__file__))
+dirname = os.path.dirname(os.path.realpath(__file__))
 cwd = os.getcwd()
 
-ICON = dir + "/../icon_glow.png"
-LOGO = dir + "/../icon_plain.png"
-VERSION = 'Perdyshot ' + open(dir + '/../.version', 'r').read()
+ICON = os.path.join(dirname, os.path.pardir, "icon_glow.png")
+LOGO = os.path.join(dirname, os.path.pardir, "icon_plain.png")
+VERSION = 'Perdyshot ' + open(os.path.join(dirname, os.path.pardir, '.version'), 'r').read()
 URL = "https://github.com/Locercus/Perdyshot"
 
 Notify.init("Perdyshot")
@@ -68,12 +68,12 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
         aboutDialog.show()
 
     def onCaptureActiveWindow(self):
-        subprocess.call(["/usr/bin/env", "python2", dir + "/../cli/window.py", "--delay", "0"])
+        subprocess.call(["/usr/bin/env", "python2", os.path.join(dirname, os.path.pardir, "cli", "window.py"), "--delay", "0"])
         notification = Notify.Notification.new("Screenshot saved", "", ICON)
         notification.show()
 
     def onCaptureSelection(self):
-        subprocess.call(["/usr/bin/env", "python2", dir + "/../cli/area.py"])
+        subprocess.call(["/usr/bin/env", "python2", os.path.join(dirname, os.path.pardir, "cli", "area.py")])
 
 
 aboutDialog = AboutDialog()
