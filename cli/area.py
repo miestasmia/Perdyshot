@@ -48,9 +48,9 @@ class AreaWindow(QtGui.QWidget):
         self.pressed = False
 
     def mousePressEvent(self, event):
-        self.pressPosition = (event.x(), event.y())
+        self.selPos = (event.x(), event.y())
 
-        self.selection.setRect(self.pressPosition[0], self.pressPosition[1], 0, 0)
+        self.selection.setRect(self.selPos[0], self.selPos[1], 0, 0)
 
         self.pressed = True
 
@@ -59,10 +59,10 @@ class AreaWindow(QtGui.QWidget):
 
     def mouseMoveEvent(self, event):
         if self.pressed:
-            x = self.pressPosition[0]
-            y = self.pressPosition[1]
-            w = event.pos().x() - x
-            h = event.pos().y() - y
+            x = self.selPos[0]
+            y = self.selPos[1]
+            w = event.x() - x
+            h = event.y() - y
 
             if w < 0:
                 x, w = x + w, -w
