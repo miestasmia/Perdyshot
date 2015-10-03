@@ -17,7 +17,7 @@ app = QtGui.QApplication(sys.argv)
 
 # Create area screenshot selection window
 class AreaWindow(QtGui.QWidget):
-    def __init__(self):
+    def __init__(self, width, height):
         QtGui.QWidget.__init__(self)
 
         self.setContentsMargins(-1, -1, -1, -1) # Hacky af but it works
@@ -39,7 +39,30 @@ class AreaWindow(QtGui.QWidget):
         self.background = QtGui.QGraphicsPixmapItem(QtGui.QPixmap('/tmp/perdyselection.png'))
         self.scene.addItem(self.background)
 
-        self.selection = QtGui.QGraphicsRectItem(QtCore.QRectF(0, 0, 0, 0))
+        coverBrush = QtGui.QBrush(QtGui.QColor(0, 0, 0, 128))
+        coverPen = QtGui.QPen(QtGui.QColor(0, 0, 0, 0))
+
+        self.coverLeft = QtGui.QGraphicsRectItem(0, 0, width, height)
+        self.coverLeft.setBrush(coverBrush)
+        self.coverLeft.setPen(coverPen)
+        self.scene.addItem(self.coverLeft)
+
+        self.coverRight = QtGui.QGraphicsRectItem(0, 0, 0, 0)
+        self.coverRight.setBrush(coverBrush)
+        self.coverRight.setPen(coverPen)
+        self.scene.addItem(self.coverRight)
+
+        self.coverTop = QtGui.QGraphicsRectItem(0, 0, 0, 0)
+        self.coverTop.setBrush(coverBrush)
+        self.coverTop.setPen(coverPen)
+        self.scene.addItem(self.coverTop)
+
+        self.coverBottom = QtGui.QGraphicsRectItem(0, 0, 0, 0)
+        self.coverBottom.setBrush(coverBrush)
+        self.coverBottom.setPen(coverPen)
+        self.scene.addItem(self.coverBottom)
+
+        self.selection = QtGui.QGraphicsRectItem(0, 0, 0, 0)
         selectionPen = QtGui.QPen(QtGui.QColor(0xffffff))
         selectionPen.setStyle(Qt.DashLine)
         self.selection.setPen(selectionPen)
@@ -71,6 +94,10 @@ class AreaWindow(QtGui.QWidget):
                 y, h = y + h, -h
 
             self.selection.setRect(x, y, w, h)
+            self.coverLeft.setRect(0, 0, x, self.height())
+            self.coverRight.setRect(x + w, 0, self.width(), self.height())
+            self.coverTop.setRect(x, 0, w, y)
+            self.coverBottom.setRect(x, y + h, w, self.height() - y - h)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
@@ -90,7 +117,7 @@ def activate():
     screenshot = gdk.Pixbuf.get_from_drawable(pixbuf, gdk.get_default_root_window(), gdk.colormap_get_system(), 0, 0, 0, 0, screenWidth, screenHeight)
     screenshot.save('/tmp/perdyselection.png', 'png')
 
-    areaWindow = AreaWindow()
+    areaWindow = AreaWindow(screenWidth, screenHeight)
     areaWindow.move(0, 0)
     areaWindow.setFixedSize(screenWidth, screenHeight)
     areaWindow.show()
