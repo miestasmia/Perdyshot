@@ -8,6 +8,7 @@ import pip
 
 dirname = os.path.dirname(__file__)
 sys.path.append(os.path.join(dirname, "lib"))
+
 import wireutils
 wireutils.cprintconf.name = "Perdyshot"
 wireutils.cprintconf.color= wireutils.bcolors.DARKCYAN
@@ -33,7 +34,7 @@ def hasModule(name):
 
 def checkModule(name):
     installed = hasModule(name)
-    wireutils.cprint("Module {name} installed: {installed}", name=name, installed=installed)
+    wireutils.cprint("Module {name} installed: {installed}", name = name, installed = installed)
 
     return installed
 
@@ -51,7 +52,7 @@ def manualInstallNotify(name, tutorial):
 
 def checkApplication(name, friendlyName, tutorial):
     installed = spawn.find_executable(name) != None
-    wireutils.cprint("Executable {name} ({readable}) found: {installed} ", name=name, readable=friendlyName, installed=installed)
+    wireutils.cprint("Executable {name} ({readable}) found: {installed} ", name = name, readable = friendlyName, installed = installed)
 
     if not installed:
         manualInstallNotify(friendlyName, tutorial)
@@ -63,7 +64,7 @@ def checkApplication(name, friendlyName, tutorial):
 try:
     wireutils.cprint("""Perdyshot dependency checker
                         ============================\n""",
-                        strip=True)
+                        strip = True)
 
     ROOT = os.geteuid() == 0
 
@@ -103,4 +104,5 @@ try:
 
 
     checkApplication("convert", "ImageMagick", "http://www.imagemagick.org/script/binary-releases.php")
-except (KeyboardInterrupt, EOFError): print
+except (KeyboardInterrupt, EOFError):
+    print

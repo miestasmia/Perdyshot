@@ -3,10 +3,11 @@
 from configobj import ConfigObj
 from validate import Validator
 
-import argparse
+import subprocess, time, sys, os, signal, argparse, tempfile
 
 dirname = os.path.dirname(__file__)
 sys.path.append(os.path.join(dirname, os.path.pardir, "lib"))
+
 import wireutils
 wireutils.cprintconf.name = "Perdyshot"
 wireutils.cprintconf.color= wireutils.bcolors.DARKCYAN
@@ -15,8 +16,6 @@ from gtk import gdk
 
 # We use PIL for simple tasks and ImageMagick for computationally-heavy tasks
 from PIL import Image, ImageOps
-
-import subprocess, time, sys, os, signal
 
 def main(argSource):
     cwd = os.getcwd()
@@ -47,7 +46,7 @@ def main(argSource):
     config = ConfigObj(os.path.join(dirname, os.path.pardir, 'perdyshot.conf'), encoding = 'UTF8', configspec = os.path.join(dirname, os.path.pardir, 'perdyshot.conf.spec'))
     validator = Validator()
     if not config.validate(validator):
-        wireutils.cprint("Invalid configuration file", color=wireutils.bcolors.DARKRED)
+        wireutils.cprint("Invalid configuration file", color = wireutils.bcolors.DARKRED)
         sys.exit(1)
 
 
@@ -80,7 +79,7 @@ def main(argSource):
     window = root.get_active_window()
 
     if window == None:
-        wireutils.cprint("Failed to capture window, exiting.", color=wireutils.bcolors.DARKRED)
+        wireutils.cprint("Failed to capture window, exiting.", color = wireutils.bcolors.DARKRED)
         sys.exit(1)
 
     # And its geometry
@@ -340,12 +339,13 @@ def main(argSource):
     wireutils.cprint("Post-processing time: %.2f seconds" % (totalTime - partialTime))
     wireutils.cprint("Total time: %.2f seconds" % (totalTime - startTime))
     print
-    wireutils.cprint("Saved as {fname}.", fname=filename)
+    wireutils.cprint("Saved as {name}.", name = filename)
 
 
 if __name__ == '__main__':
     try:
         main(sys.argv[1:])
-    except (KeyboardInterrupt, EOFError): print
+    except (KeyboardInterrupt, EOFError):
+        print
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
