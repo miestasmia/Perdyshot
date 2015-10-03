@@ -389,7 +389,7 @@ def main(argSource):
             filename = time.strftime(filename)
 
             image = Image.open('/tmp/perdyselection.png')
-            image = image.crop((x, y, x + w, x + h))
+            image = image.crop((x, y, x + w, y + h))
             image.save(filename, 'png')
 
             if __name__ == '__main__':

@@ -74,8 +74,6 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
 
     def onCaptureSelection(self):
         subprocess.call(["/usr/bin/env", "python2", dir + "/../cli/area.py"])
-        notification = Notify.Notification.new("Screenshot saved", "", ICON)
-        notification.show()
 
 
 aboutDialog = AboutDialog()
