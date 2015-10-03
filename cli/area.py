@@ -30,6 +30,7 @@ class AreaWindow(QtGui.QWidget):
         self.view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.view.mouseMoveEvent = self.mouseMoveEvent
+        #self.view.keyPressEvent = self.keyPressEvent
 
         self.layout = QtGui.QVBoxLayout()
         self.layout.setContentsMargins(0, 0, 0, 0)
@@ -71,6 +72,10 @@ class AreaWindow(QtGui.QWidget):
                 y, h = y + h, -h
 
             self.selection.setRect(x, y, w, h)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape:
+            sys.exit()
 
 
 
