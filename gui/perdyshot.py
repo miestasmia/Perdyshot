@@ -51,7 +51,8 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
 
         menu = QtGui.QMenu(parent)
 
-        menu.addAction("Capture Active Window", self.onActiveWindowCapture)
+        menu.addAction("Capture Active Window", self.onCaptureActiveWindow)
+        menu.addAction("Capture Selection", self.onCaptureSelection)
 
         menu.addSeparator()
 
@@ -66,8 +67,13 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
     def onAbout(self):
         aboutDialog.show()
 
-    def onActiveWindowCapture(self):
+    def onCaptureActiveWindow(self):
         subprocess.call(["/usr/bin/env", "python2", dir + "/../cli/window.py", "--delay", "0"])
+        notification = Notify.Notification.new("Screenshot saved", "", ICON)
+        notification.show()
+
+    def onCaptureSelection(self):
+        subprocess.call(["/usr/bin/env", "python2", dir + "/../cli/area.py"])
         notification = Notify.Notification.new("Screenshot saved", "", ICON)
         notification.show()
 
