@@ -138,7 +138,10 @@ class AreaWindow(QtGui.QWidget):
 
         # Inside the selection
         if x in xrange(rx, rx2) and y in xrange(ry, ry2):
-            self.setCursor(Qt.OpenHandCursor)
+            if self.pressed:
+                self.setCursor(Qt.ClosedHandCursor)
+            else:
+                self.setCursor(Qt.OpenHandCursor)
         # Outside the selection
         else:
             self.setCursor(Qt.CrossCursor)
