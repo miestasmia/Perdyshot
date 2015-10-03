@@ -3,9 +3,7 @@
 from configobj import ConfigObj
 from validate import Validator
 
-import argparse
-
-import os, sys, signal
+import argparse, os, sys, signal, time
 
 from gtk import gdk
 
@@ -20,6 +18,29 @@ def main(argSource):
     cwd = os.getcwd()
 
     app = QtGui.QApplication(sys.argv)
+
+
+    version = 'Perdyshot ' + open(dir + '/../.version', 'r').read()
+
+    parser = argparse.ArgumentParser(description = 'Takes a perdy screenshot of an area selection.')
+
+    parser.add_argument('-f', '--file', help = 'overrides setting in perdyshot.conf', default = None)
+
+    parser.add_argument('-v', '--version', action = 'version', version = version)
+
+    args = vars(parser.parse_args(argSource))
+
+    config = ConfigObj(dir + '/../perdyshot.conf', encoding = 'UTF8', configspec = dir + '/../perdyshot.conf.spec')
+    validator = Validator()
+    if not config.validate(validator):
+        print "Invalid configuration file"
+        sys.exit(1)
+
+
+    settings = {}
+
+    settings['filename'] = config['Settings']['filename']
+
 
     # Create area screenshot selection window
     class AreaWindow(QtGui.QWidget):
@@ -364,9 +385,12 @@ def main(argSource):
         def capture(self, x, y, w, h):
             self.hide()
 
+            filename = args['file'] if args['file'] != None else settings['filename']
+            filename = time.strftime(filename)
+
             image = Image.open('/tmp/perdyselection.png')
             image = image.crop((x, y, x + w, x + h))
-            image.save('screenshot.png', 'png')
+            image.save(filename, 'png')
 
             if __name__ == '__main__':
                 sys.exit()
