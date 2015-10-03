@@ -3,10 +3,11 @@
 from configobj import ConfigObj
 from validate import Validator
 
-import argparse, os, sys, signal, time, temppath
+import argparse, os, sys, signal, time, tempfile
 
 dirname = os.path.dirname(__file__)
 sys.path.append(os.path.join(dirname, os.path.pardir, "lib"))
+
 import wireutils
 wireutils.cprintconf.name = "Perdyshot"
 wireutils.cprintconf.color= wireutils.bcolors.DARKCYAN
@@ -38,7 +39,7 @@ def main(argSource):
     config = ConfigObj(os.path.join(dirname, os.path.pardir, 'perdyshot.conf'), encoding = 'UTF8', configspec = os.path.join(dirname, os.path.pardir, 'perdyshot.conf.spec'))
     validator = Validator()
     if not config.validate(validator):
-        wireutils.cprint("Invalid configuration file", color=wireutils.bcolors.DARKRED)
+        wireutils.cprint("Invalid configuration file", color = wireutils.bcolors.DARKRED)
         sys.exit(1)
 
 
@@ -428,6 +429,7 @@ def main(argSource):
 if __name__ == '__main__':
     try:
         main(sys.argv[1:])
-    except (KeyboardInterrupt, EOFError): print
+    except (KeyboardInterrupt, EOFError):
+        print
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
