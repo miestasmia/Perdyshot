@@ -75,7 +75,7 @@ class AreaWindow(QtGui.QWidget):
         self.scene.addItem(self.selection)
 
         self.leftPressed = False
-        self.pressMode = None # 0: Dragging,  1: Creating,  2: Resize left,  3: Resize top,  4: Resize right,  5: Resize bottom
+        self.pressMode = None # 0: Dragging,  1: Creating,  2: Resize left,  3: Resize top,  4: Resize right,  5: Resize bottom,  6: Resize top-left,  7: Resize top-right,  8: Resize bottom-right,  9: Resize bottom-left
         self.selPos = (0, 0)
         self.selDims = (0, 0, 0, 0)
         self.curPos = (0, 0)
@@ -183,6 +183,22 @@ class AreaWindow(QtGui.QWidget):
         elif x in xrange(dx, dx + dw) and y in xrange(dy + dh - 8, dy + dh + 8):
             return 5
 
+        # Resize top-left
+        elif x in xrange(dx - 8, dx + 8) and y in xrange(dy - 8, dy + 8):
+            return 6
+
+        # Resize top-right
+        elif x in xrange(dx + dw - 8, dx + dw + 8) and y in xrange(dy - 8, dy + 8):
+            return 7
+
+        # Resize bottom-right
+        elif x in xrange(dx + dw - 8, dx + dw + 8) and y in xrange(dy + dh - 8, dy + dh + 8):
+            return 8
+
+        # Resize bottom-left
+        elif x in xrange(dx - 8, dx + 8) and y in xrange(dy + dh - 8, dy + dh + 8):
+            return 9
+
         # Creating
         else:
             return 1
@@ -208,12 +224,21 @@ class AreaWindow(QtGui.QWidget):
         elif mode == 1:
             self.setCursor(Qt.CrossCursor)
 
-        # Resize left
+        # Resize horizontal
         elif mode == 2 or mode == 4:
             self.setCursor(Qt.SizeHorCursor)
 
+        # Resize vertical
         elif mode == 3 or mode == 5:
             self.setCursor(Qt.SizeVerCursor)
+
+        # Resize bottom-left and top-right
+        elif mode == 7 or mode == 9:
+            self.setCursor(Qt.SizeBDiagCursor)
+
+        # Resize top-left and bottom-right
+        elif mode == 6 or mode == 8:
+            self.setCursor(Qt.SizeFDiagCursor)
 
 
 
