@@ -34,4 +34,4 @@ Perdyshot is free software (as in freedom and free beer) released under the MIT 
 * More premade configuration files and bitmaps for different themes/wms
     * Set up a guide so others can contribute with setups for their themes/wms
 * Support for uploading (with support for custom destinations using an API configuration system)
-* Support for image manipulation (using a built-in editor or an external)
+* Support for built-in image manipulation
