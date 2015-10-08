@@ -8,6 +8,8 @@ import argparse, os, sys, signal, time, tempfile
 dirname = os.path.dirname(__file__)
 sys.path.append(os.path.join(dirname, os.path.pardir, "lib"))
 
+from enum import Enum
+
 import wireutils
 wireutils.cprintconf.name = "Perdyshot"
 wireutils.cprintconf.color= wireutils.bcolors.DARKCYAN
@@ -46,6 +48,8 @@ def main(argSource):
     settings = {}
 
     settings['filename'] = config['Settings']['filename']
+
+    PressMode = Enum('PressMode', 'Dragging Creating ResizeLeft ResizeTop ResizeRight ResizeBottom ResizeTopLeft ResizeTopRight ResizeBottomRight ResizeBottomLeft')
 
 
     # Create area screenshot selection window
@@ -109,10 +113,10 @@ def main(argSource):
             self.scene.addItem(self.selection)
 
             self.leftPressed = False
-            self.pressMode = None # 0: Dragging,  1: Creating,  2: Resize left,  3: Resize top,  4: Resize right,  5: Resize bottom,  6: Resize top-left,  7: Resize top-right,  8: Resize bottom-right,  9: Resize bottom-left
-            self.selPos = (0, 0, 0, 0)
+            self.pressMode = None
+            self.selPos =  (0, 0, 0, 0)
             self.selDims = (0, 0, 0, 0)
-            self.curPos = (0, 0)
+            self.curPos =  (0, 0)
 
         def mousePressEvent(self, event):
             x, y = event.x(), event.y()
@@ -126,9 +130,7 @@ def main(argSource):
                 self.pressMode = self.getPositionPressMode(x, y)
 
                 # Creating
-                if self.pressMode == 1:
-                    self.pressMode = 1
-
+                if self.pressMode == PressMode.Creating:
                     self.selPos = (x, y, 0, 0)
                     self.selDims = (0, 0, 0, 0)
 
@@ -169,59 +171,49 @@ def main(argSource):
                 xDiff = mx - mxo
                 yDiff = my - myo
 
-                # Dragging
-                if self.pressMode == 0:
+                if self.pressMode == PressMode.Dragging:
                     x += xDiff
                     y += yDiff
                     w -= xDiff - xDiff
                     h -= yDiff - yDiff
 
-                # Creating
-                elif self.pressMode == 1:
+                elif self.pressMode == PressMode.Creating:
                     w = event.x() - x
                     h = event.y() - y
 
-                # Resize left
-                elif self.pressMode == 2:
+                elif self.pressMode == PressMode.ResizeLeft:
                     x += xDiff
                     w -= xDiff
 
-                # Resize top
-                elif self.pressMode == 3:
+                elif self.pressMode == PressMode.ResizeTop:
                     y += yDiff
                     h -= yDiff
 
-                # Resize right
-                elif self.pressMode == 4:
+                elif self.pressMode == PressMode.ResizeRight:
                     w += xDiff
 
-                # Resize bottom
-                elif self.pressMode == 5:
+                elif self.pressMode == PressMode.ResizeBottom:
                     h += yDiff
 
-                # Resize top-left
-                elif self.pressMode == 6:
+                elif self.pressMode == PressMode.ResizeTopLeft:
                     x += xDiff
                     w -= xDiff
 
                     y += yDiff
                     h -= yDiff
 
-                # Resize top-right
-                elif self.pressMode == 7:
+                elif self.pressMode == PressMode.ResizeTopRight:
                     w += xDiff
 
                     y += yDiff
                     h -= yDiff
 
-                # Resize bottom-right
-                elif self.pressMode == 8:
+                elif self.pressMode == PressMode.ResizeBottomRight:
                     w += xDiff
 
                     h += yDiff
 
-                # Resize bottom-left
-                elif self.pressMode == 9:
+                elif self.pressMode == PressMode.ResizeBottomLeft:
                     x += xDiff
                     w -= xDiff
 
@@ -309,45 +301,35 @@ def main(argSource):
         def getPositionPressMode(self, x, y):
             dx, dy, dw, dh = self.selDims
 
-            # Dragging
             if x in xrange(dx + 8, dx + dw - 8) and y in xrange(dy + 8, dy + dh - 8):
-                return 0
+                return PressMode.Dragging
 
-            # Resize left
-            elif x in xrange(dx - 8, dx + 8) and y in xrange(dy, dy + dh):
-                return 2
+            elif x in xrange(dx - 8, dx + 8) and y in xrange(dy + 8, dy + dh - 8):
+                return PressMode.ResizeLeft
 
-            # Resize top
-            elif x in xrange(dx, dx + dw) and y in xrange(dy - 8, dy + 8):
-                return 3
+            elif x in xrange(dx + 8, dx + dw - 8) and y in xrange(dy - 8, dy + 8):
+                return PressMode.ResizeTop
 
-            # Resize right
-            elif x in xrange(dx + dw - 8, dx + dw + 8) and y in xrange(dy, dy + dh):
-                return 4
+            elif x in xrange(dx + dw - 8, dx + dw + 8) and y in xrange(dy + 8, dy + dh - 8):
+                return PressMode.ResizeRight
 
-            # Resize bottom
-            elif x in xrange(dx, dx + dw) and y in xrange(dy + dh - 8, dy + dh + 8):
-                return 5
+            elif x in xrange(dx + 8, dx + dw - 8) and y in xrange(dy + dh - 8, dy + dh + 8):
+                return PressMode.ResizeBottom
 
-            # Resize top-left
             elif x in xrange(dx - 8, dx + 8) and y in xrange(dy - 8, dy + 8):
-                return 6
+                return PressMode.ResizeTopLeft
 
-            # Resize top-right
             elif x in xrange(dx + dw - 8, dx + dw + 8) and y in xrange(dy - 8, dy + 8):
-                return 7
+                return PressMode.ResizeTopRight
 
-            # Resize bottom-right
             elif x in xrange(dx + dw - 8, dx + dw + 8) and y in xrange(dy + dh - 8, dy + dh + 8):
-                return 8
+                return PressMode.ResizeBottomRight
 
-            # Resize bottom-left
             elif x in xrange(dx - 8, dx + 8) and y in xrange(dy + dh - 8, dy + dh + 8):
-                return 9
+                return PressMode.ResizeBottomLeft
 
-            # Creating
             else:
-                return 1
+                return PressMode.Creating
 
 
         # Set the cursor according to its position
@@ -359,31 +341,25 @@ def main(argSource):
 
             mode = self.getPositionPressMode(x, y)
 
-            # Dragging
-            if mode == 0:
+            if mode == PressMode.Dragging:
                 if self.leftPressed:
                     self.setCursor(Qt.ClosedHandCursor)
                 else:
                     self.setCursor(Qt.OpenHandCursor)
 
-            # Creating
-            elif mode == 1:
+            elif mode == PressMode.Creating:
                 self.setCursor(Qt.CrossCursor)
 
-            # Resize horizontal
-            elif mode == 2 or mode == 4:
+            elif mode == PressMode.ResizeLeft or mode == PressMode.ResizeRight:
                 self.setCursor(Qt.SizeHorCursor)
 
-            # Resize vertical
-            elif mode == 3 or mode == 5:
+            elif mode == PressMode.ResizeTop or mode == PressMode.ResizeBottom:
                 self.setCursor(Qt.SizeVerCursor)
 
-            # Resize bottom-left and top-right
-            elif mode == 7 or mode == 9:
+            elif mode == PressMode.ResizeBottomLeft or mode == PressMode.ResizeTopRight:
                 self.setCursor(Qt.SizeBDiagCursor)
 
-            # Resize top-left and bottom-right
-            elif mode == 6 or mode == 8:
+            elif mode == PressMode.ResizeTopLeft or mode == PressMode.ResizeBottomRight:
                 self.setCursor(Qt.SizeFDiagCursor)
 
 
