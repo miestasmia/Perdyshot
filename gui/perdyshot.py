@@ -3,7 +3,9 @@
 from configobj import ConfigObj
 from validate import Validator
 
-import os, sys, subprocess, signal, tempfile, shutil, pipes
+import os, sys, subprocess, signal, tempfile, shutil, pipes, time, locale
+
+from datetime import datetime
 
 from PyQt4 import QtGui, QtCore
 from gi.repository import Notify
@@ -15,6 +17,9 @@ ICON = os.path.join(dirname, os.path.pardir, "icon_glow.png")
 LOGO = os.path.join(dirname, os.path.pardir, "icon_plain.png")
 VERSION = 'Perdyshot ' + open(os.path.join(dirname, os.path.pardir, '.version'), 'r').read()
 URL = "https://github.com/Miestasmia/Perdyshot"
+
+DATE = os.path.getmtime(os.path.join(dirname, os.path.pardir, ".version"))
+DATE = datetime.fromtimestamp(DATE).strftime(locale.nl_langinfo(locale.D_T_FMT))
 
 Notify.init("Perdyshot")
 
@@ -36,7 +41,7 @@ app = QtGui.QApplication(sys.argv)
 class AboutDialog(QtGui.QWidget):
     def __init__(self):
         QtGui.QWidget.__init__(self)
-        self.setFixedSize(450, 230)
+        self.setFixedSize(450, 240)
         self.setWindowTitle("About Perdyshot")
 
         image = QtGui.QLabel(self)
@@ -44,11 +49,11 @@ class AboutDialog(QtGui.QWidget):
         image.move((450 - image.sizeHint().width()) / 2, 10)
 
         text = QtGui.QLabel(self)
-        text.setText("<b>%s &copy; 2015 Mia Nordentoft. MIT License</b>" % VERSION)
+        text.setText("<center><b>%s &copy; 2015 Mia Nordentoft. MIT License</b><br/>Released on %s</center>" % (VERSION, DATE))
         text.move((450 - text.sizeHint().width()) / 2, image.sizeHint().height() + 30)
 
         website = QtGui.QPushButton("Website", self)
-        website.move((450 - website.sizeHint().width()) / 2, image.sizeHint().height() + 60)
+        website.move((450 - website.sizeHint().width()) / 2, image.sizeHint().height() + text.sizeHint().height() + 45)
         website.clicked.connect(self.openWebsite)
 
     def closeEvent(self, event):
