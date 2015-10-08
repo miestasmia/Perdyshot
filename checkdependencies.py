@@ -104,5 +104,9 @@ try:
 
 
     checkApplication("convert", "ImageMagick", "http://www.imagemagick.org/script/binary-releases.php")
+    checkApplication("xclip", "xclip", "https://github.com/milki/xclip/blob/master/INSTALL")
+
+
+
 except (KeyboardInterrupt, EOFError):
     print

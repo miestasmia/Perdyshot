@@ -1,6 +1,10 @@
 #!/usr/bin/env python2
 
-import os, sys, subprocess, signal
+from configobj import ConfigObj
+from validate import Validator
+
+import os, sys, subprocess, signal, tempfile, shutil, pipes
+
 from PyQt4 import QtGui, QtCore
 from gi.repository import Notify
 
@@ -13,6 +17,18 @@ VERSION = 'Perdyshot ' + open(os.path.join(dirname, os.path.pardir, '.version'),
 URL = "https://github.com/Locercus/Perdyshot"
 
 Notify.init("Perdyshot")
+
+
+config = ConfigObj(os.path.join(dirname, os.path.pardir, 'perdyshot.conf'), encoding = 'UTF8', configspec = os.path.join(dirname, os.path.pardir, 'perdyshot.conf.spec'))
+validator = Validator()
+if not config.validate(validator):
+    wireutils.cprint("Invalid configuration file", color = wireutils.bcolors.DARKRED)
+    sys.exit(1)
+
+settings = {}
+
+settings['modes'] = config['GUI']['CaptureModes']
+
 
 app = QtGui.QApplication(sys.argv)
 
@@ -50,9 +66,14 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
         QtGui.QSystemTrayIcon.__init__(self, icon, parent)
 
         menu = QtGui.QMenu(parent)
+        self.menu = menu
 
-        menu.addAction("Capture Active Window", self.onCaptureActiveWindow)
-        menu.addAction("Capture Selection", self.onCaptureSelection)
+        # Add the options
+        for key in settings['modes']:
+            action = menu.addAction(key)
+            action.triggered.connect(
+                lambda x, key = key: self.onCapture(key)
+                )
 
         menu.addSeparator()
 
@@ -67,13 +88,46 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
     def onAbout(self):
         aboutDialog.show()
 
-    def onCaptureActiveWindow(self):
-        subprocess.call(["/usr/bin/env", "python2", os.path.join(dirname, os.path.pardir, "cli", "window.py"), "--delay", "0"])
-        notification = Notify.Notification.new("Screenshot saved", "", ICON)
-        notification.show()
+    def onCapture(self, item):
+        options = settings['modes'][item]
 
-    def onCaptureSelection(self):
-        subprocess.call(["/usr/bin/env", "python2", os.path.join(dirname, os.path.pardir, "cli", "area.py")])
+        if options['type'] == 'script':
+            subprocess.call([ options['file'] ])
+
+        elif options['type'] == 'simple':
+            filename = os.path.join(tempfile.gettempdir(), 'perdygui.png')
+
+            args = [
+                '/usr/bin/env', 'python2', os.path.join(dirname, os.path.pardir, 'cli', options['mode'] + '.py'),
+
+                '-f', filename
+            ]
+
+            if options['mode'] == 'window':
+                args.extend(['--delay', '0'])
+
+            # Capture the screenshot
+            subprocess.call(args)
+
+            # Okay the screenshot has been captures. What do we do now?
+            if options['file'] != None:
+                newFilename = time.strftime(options['file'])
+                shutil.copyfile(filename, newFilename)
+                filename = newFilename
+
+            if options['program'] != None:
+                subprocess.call(options['program'] % filename, shell = True)
+
+            if options['copy']:
+                subprocess.call('xclip -i -sel clip < ' + pipes.quote(filename), shell = True)
+
+            if options['notification']:
+                notification = Notify.Notification.new(
+                    options['notificationTitle'],
+                    options['notificationDescription'],
+                    options['notificationImage'] if options['notificationImage'] != None else ICON
+                    )
+                notification.show()
 
 
 aboutDialog = AboutDialog()
