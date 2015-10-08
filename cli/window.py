@@ -317,11 +317,11 @@ def main(argSource):
 
 
     # Save the image with PIL for modification with ImageMagick
-    image.save(os.path.join(tempfile.gettempdir(), 'perdyshot.png'), 'png')
+    image.save(os.path.join(tempfile.gettempdir(), 'perdywindow.png'), 'png')
 
     # Apply a shadow
     shadowColour = args['shadow'] if args['shadow'] != None else settings['shadow']
-    command  = "convert " + os.path.join(tempfile.gettempdir(), 'perdyshot.png') + " -bordercolor none -border 64x64 -repage +48+48 \( +clone -background \"" + shadowColour + "\" -shadow 100x24+0+32 \) +swap -background none -mosaic"
+    command  = "convert " + os.path.join(tempfile.gettempdir(), 'perdywindow.png') + " -bordercolor none -border 64x64 -repage +48+48 \( +clone -background \"" + shadowColour + "\" -shadow 100x24+0+32 \) +swap -background none -mosaic"
 
     # Change the background if necessary
     background = args['background'] if args['background'] != '' else settings['background']
