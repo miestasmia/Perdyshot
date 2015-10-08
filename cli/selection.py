@@ -49,7 +49,7 @@ def main(argSource):
 
     settings['filename'] = config['Settings']['filename']
 
-    PressMode = Enum('PressMode', 'Dragging KeyDragging Creating ResizeLeft ResizeTop ResizeRight ResizeBottom ResizeTopLeft ResizeTopRight ResizeBottomRight ResizeBottomLeft')
+    PressMode = Enum('PressMode', 'Dragging KeyDragging CreateResizeCenter Creating ResizeLeft ResizeTop ResizeRight ResizeBottom ResizeTopLeft ResizeTopRight ResizeBottomRight ResizeBottomLeft')
 
 
     # Create area screenshot selection window
@@ -176,8 +176,13 @@ def main(argSource):
                 if self.pressMode in [PressMode.Dragging, PressMode.KeyDragging]:
                     x += xDiff
                     y += yDiff
-                    w -= xDiff - xDiff
-                    h -= yDiff - yDiff
+
+                elif self.pressMode == PressMode.CreateResizeCenter:
+                    x -= xDiff
+                    y -= yDiff
+                    
+                    w += xDiff * 2
+                    h += yDiff * 2
 
                 elif self.pressMode == PressMode.Creating:
                     w = event.x() - x
@@ -199,26 +204,22 @@ def main(argSource):
 
                 elif self.pressMode == PressMode.ResizeTopLeft:
                     x += xDiff
-                    w -= xDiff
-
                     y += yDiff
+                    w -= xDiff
                     h -= yDiff
 
                 elif self.pressMode == PressMode.ResizeTopRight:
                     w += xDiff
-
                     y += yDiff
                     h -= yDiff
 
                 elif self.pressMode == PressMode.ResizeBottomRight:
                     w += xDiff
-
                     h += yDiff
 
                 elif self.pressMode == PressMode.ResizeBottomLeft:
                     x += xDiff
                     w -= xDiff
-
                     h += yDiff
 
 
@@ -263,6 +264,10 @@ def main(argSource):
             elif key == Qt.Key_Space:
                 if self.pressMode == PressMode.Creating:
                     self.pressMode = PressMode.KeyDragging
+
+            elif key == Qt.Key_Alt:
+                if self.pressMode == PressMode.Creating:
+                    self.pressMode = PressMode.CreateResizeCenter
 
             elif key in [Qt.Key_Left, Qt.Key_Up, Qt.Key_Right, Qt.Key_Down]:
                 if self.pressMode is None:
@@ -312,6 +317,10 @@ def main(argSource):
                 if self.pressMode == PressMode.KeyDragging:
                     self.pressMode = PressMode.Creating
 
+            elif key == Qt.Key_Alt:
+                if self.pressMode == PressMode.CreateResizeCenter:
+                    self.pressMode = PressMode.Creating
+
 
         def getPositionPressMode(self, x, y):
             dx, dy, dw, dh = self.selDims
@@ -358,6 +367,9 @@ def main(argSource):
 
             if self.pressMode == PressMode.KeyDragging:
                 self.setCursor(Qt.ClosedHandCursor)
+
+            elif self.pressMode == PressMode.CreateResizeCenter:
+                self.setCursor(Qt.SizeAllCursor)
 
             elif self.pressMode == PressMode.Creating or mode == PressMode.Creating:
                 self.setCursor(Qt.CrossCursor)
