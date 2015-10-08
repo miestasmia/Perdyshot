@@ -302,6 +302,8 @@ def main(argSource):
                     self.coverTop.setRect(x, 0, w, y)
                     self.coverBottom.setRect(x, y + h, w, th - y - h)
 
+            self.updateCursor()
+
 
         def keyReleaseEvent(self, event):
             key = event.key()
