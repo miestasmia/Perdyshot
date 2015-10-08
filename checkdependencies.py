@@ -100,6 +100,9 @@ try:
     if moduleNeedsInstalling("enum"):
         pip.main(["install", "-U", "enum34"])
 
+    if moduleNeedsInstalling("datetime")
+        pip.main(["install", "-U", "DateTime"])
+
 
 
     wireutils.cprint("Checking application dependencies for Perdyshot ... \n")
