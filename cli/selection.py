@@ -129,7 +129,6 @@ def main(argSource):
 
                 self.pressMode = self.getPositionPressMode(x, y)
 
-                # Creating
                 if self.pressMode == PressMode.Creating:
                     self.selPos = (x, y, 0, 0)
                     self.selDims = (0, 0, 0, 0)
@@ -158,6 +157,9 @@ def main(argSource):
             if event.button() == Qt.LeftButton:
                 self.leftPressed = False
                 self.pressMode = None
+
+                # Fix mirrored selections
+                self.selPos = self.selDims
 
             self.updateCursor()
 
@@ -259,41 +261,42 @@ def main(argSource):
                 self.capture(dx, dy, dw, dh)
 
             elif key in [Qt.Key_Left, Qt.Key_Up, Qt.Key_Right, Qt.Key_Down]:
-                diffx = 0
-                diffy = 0
+                if self.pressMode is None:
+                    diffx = 0
+                    diffy = 0
 
-                if key == Qt.Key_Left:
-                    diffx = -1
+                    if key == Qt.Key_Left:
+                        diffx = -1
 
-                elif key == Qt.Key_Up:
-                    diffy = -1
+                    elif key == Qt.Key_Up:
+                        diffy = -1
 
-                elif key == Qt.Key_Right:
-                    diffx = 1
+                    elif key == Qt.Key_Right:
+                        diffx = 1
 
-                elif key == Qt.Key_Down:
-                    diffy = 1
-
-
-                if event.modifiers() & Qt.ShiftModifier:
-                    diffx *= 4
-                    diffy *= 4
+                    elif key == Qt.Key_Down:
+                        diffy = 1
 
 
-                x  += diffx
-                dx += diffx
+                    if event.modifiers() & Qt.ShiftModifier:
+                        diffx *= 4
+                        diffy *= 4
 
-                y  += diffy
-                dy += diffy
 
-                self.selPos = (x, y, w, h)
-                self.selDims = (dx, dy, dw, dh)
+                    x  += diffx
+                    dx += diffx
 
-                self.selection.setRect(dx, dy, dw, dh)
-                self.coverLeft.setRect(0, 0, x, th)
-                self.coverRight.setRect(x + w, 0, tw, th)
-                self.coverTop.setRect(x, 0, w, y)
-                self.coverBottom.setRect(x, y + h, w, th - y - h)
+                    y  += diffy
+                    dy += diffy
+
+                    self.selPos = (x, y, w, h)
+                    self.selDims = (dx, dy, dw, dh)
+
+                    self.selection.setRect(dx, dy, dw, dh)
+                    self.coverLeft.setRect(0, 0, x, th)
+                    self.coverRight.setRect(x + w, 0, tw, th)
+                    self.coverTop.setRect(x, 0, w, y)
+                    self.coverBottom.setRect(x, y + h, w, th - y - h)
 
 
 
