@@ -49,7 +49,7 @@ def main(argSource):
 
     settings['filename'] = config['Settings']['filename']
 
-    PressMode = Enum('PressMode', 'Dragging Creating ResizeLeft ResizeTop ResizeRight ResizeBottom ResizeTopLeft ResizeTopRight ResizeBottomRight ResizeBottomLeft')
+    PressMode = Enum('PressMode', 'Dragging KeyDragging Creating ResizeLeft ResizeTop ResizeRight ResizeBottom ResizeTopLeft ResizeTopRight ResizeBottomRight ResizeBottomLeft')
 
 
     # Create area screenshot selection window
@@ -173,7 +173,7 @@ def main(argSource):
                 xDiff = mx - mxo
                 yDiff = my - myo
 
-                if self.pressMode == PressMode.Dragging:
+                if self.pressMode in [PressMode.Dragging, PressMode.KeyDragging]:
                     x += xDiff
                     y += yDiff
                     w -= xDiff - xDiff
@@ -260,6 +260,10 @@ def main(argSource):
             elif key in [Qt.Key_Enter, Qt.Key_Return]:
                 self.capture(dx, dy, dw, dh)
 
+            elif key == Qt.Key_Space:
+                if self.pressMode == PressMode.Creating:
+                    self.pressMode = PressMode.KeyDragging
+
             elif key in [Qt.Key_Left, Qt.Key_Up, Qt.Key_Right, Qt.Key_Down]:
                 if self.pressMode is None:
                     diffx = 0
@@ -299,6 +303,12 @@ def main(argSource):
                     self.coverBottom.setRect(x, y + h, w, th - y - h)
 
 
+        def keyReleaseEvent(self, event):
+            key = event.key()
+
+            if key == Qt.Key_Space:
+                if self.pressMode == PressMode.KeyDragging:
+                    self.pressMode = PressMode.Creating
 
 
         def getPositionPressMode(self, x, y):
@@ -353,16 +363,16 @@ def main(argSource):
             elif mode == PressMode.Creating:
                 self.setCursor(Qt.CrossCursor)
 
-            elif mode == PressMode.ResizeLeft or mode == PressMode.ResizeRight:
+            elif mode in [PressMode.ResizeLeft, PressMode.ResizeRight]:
                 self.setCursor(Qt.SizeHorCursor)
 
-            elif mode == PressMode.ResizeTop or mode == PressMode.ResizeBottom:
+            elif mode in [PressMode.ResizeTop, PressMode.ResizeBottom]:
                 self.setCursor(Qt.SizeVerCursor)
 
-            elif mode == PressMode.ResizeBottomLeft or mode == PressMode.ResizeTopRight:
+            elif mode in [PressMode.ResizeBottomLeft, PressMode.ResizeTopRight]:
                 self.setCursor(Qt.SizeBDiagCursor)
 
-            elif mode == PressMode.ResizeTopLeft or mode == PressMode.ResizeBottomRight:
+            elif mode in [PressMode.ResizeTopLeft, PressMode.ResizeBottomRight]:
                 self.setCursor(Qt.SizeFDiagCursor)
 
 
