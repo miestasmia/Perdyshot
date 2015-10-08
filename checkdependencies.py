@@ -97,6 +97,9 @@ try:
     if moduleNeedsInstalling("validate"):
         pip.main(["install", "-U", "validate"])
 
+    if moduleNeedsInstalling("enum"):
+        pip.main(["install", "-U", "enum34"])
+
 
 
     wireutils.cprint("Checking application dependencies for Perdyshot ... \n")
