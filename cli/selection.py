@@ -354,14 +354,17 @@ def main(argSource):
 
             mode = self.getPositionPressMode(x, y)
 
-            if mode == PressMode.Dragging:
+            if self.pressMode == PressMode.KeyDragging:
+                self.setCursor(Qt.ClosedHandCursor)
+
+            elif self.pressMode == PressMode.Creating or mode == PressMode.Creating:
+                self.setCursor(Qt.CrossCursor)
+
+            elif mode == PressMode.Dragging:
                 if self.leftPressed:
                     self.setCursor(Qt.ClosedHandCursor)
                 else:
                     self.setCursor(Qt.OpenHandCursor)
-
-            elif mode == PressMode.Creating:
-                self.setCursor(Qt.CrossCursor)
 
             elif mode in [PressMode.ResizeLeft, PressMode.ResizeRight]:
                 self.setCursor(Qt.SizeHorCursor)
