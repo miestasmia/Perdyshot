@@ -180,7 +180,6 @@ def main(argSource):
                 elif self.pressMode == PressMode.CreateResizeCenter:
                     x -= xDiff
                     y -= yDiff
-                    
                     w += xDiff * 2
                     h += yDiff * 2
 
