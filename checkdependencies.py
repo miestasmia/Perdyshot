@@ -100,7 +100,7 @@ try:
     if moduleNeedsInstalling("enum"):
         pip.main(["install", "-U", "enum34"])
 
-    if moduleNeedsInstalling("datetime")
+    if moduleNeedsInstalling("datetime"):
         pip.main(["install", "-U", "DateTime"])
 
 
