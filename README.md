@@ -29,7 +29,7 @@ Perdyshot is free software (as in freedom and free beer) released under the MIT 
 * [Tallerkenen](http://tallerknen.deviantart.com/gallery/) for making an awesome icon.
 
 ## TODO :calendar:
-* Other selection types (ancestor window, monitor, screen)
+* Other selection types (window under cursor, monitor, screen)
 * Actual GUI
 * More premade configuration files and bitmaps for different themes/wms
     * Set up a guide so others can contribute with setups for their themes/wms
