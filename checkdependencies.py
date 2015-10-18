@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
-
+from __future__ import print_function
 import imp, os, sys, subprocess
 
 from distutils import spawn
@@ -117,7 +117,7 @@ try:
         installModule("DateTime")
 
 
-
+    print()
     wireutils.cprint("Checking application dependencies for Perdyshot ... \n")
 
 
