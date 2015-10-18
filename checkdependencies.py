@@ -4,7 +4,10 @@ import imp, os, sys, subprocess
 
 from distutils import spawn
 
-import pip
+try:
+    import pip
+except:
+    pip = None
 
 dirname = os.path.dirname(__file__)
 sys.path.append(os.path.join(dirname, "lib"))
@@ -37,6 +40,13 @@ def checkModule(name):
     wireutils.cprint("Module {name} installed: {installed}", name = name, installed = installed)
 
     return installed
+
+def installModule(name):
+    if pip:
+        pip.main(["install", "-U", name])
+    else:
+        if not readBool("We can't automatically install %s for you. Please install pip to allow this. Do you wish to continue now?" % name):
+            sys.exit()
 
 def moduleNeedsInstalling(name):
     installed = checkModule(name)
@@ -71,37 +81,40 @@ try:
     if not ROOT:
         if not readBool("You're not root. Installing missing packages will not be supported. Do you wish to continue?"):
             sys.exit()
+    if not pip:
+        if not readBool("pip isn't installed. Installing missing packages will not be supported. Do you wish to continue?"):
+            sys.exit()
 
     wireutils.cprint("Checking module dependencies for Perdyshot ...")
 
 
 
     if moduleNeedsInstalling("argparse"):
-        pip.main(["install", "-U", "argparse"])
+        installModule("argparse")
 
     if moduleNeedsInstalling("configobj"):
-        pip.main(["install", "-U", "configobj"])
+        installModule("configobj")
 
     if not checkModule("gi"):
         manualInstallNotify("gi", "http://python-gtk-3-tutorial.readthedocs.org/en/latest/install.html")
 
     if moduleNeedsInstalling("gtk"):
-        pip.main(["install", "-U", "PyGTK"])
+        installModule("PyGTK")
 
     if moduleNeedsInstalling("PIL"):
-        pip.main(["install", "-U", "Pillow"])
+        installModule("Pillow")
 
     if not checkModule("PyQt4"):
         manualInstallNotify("PyQt4", "http://pyqt.sourceforge.net/Docs/PyQt4/installation.html")
 
     if moduleNeedsInstalling("validate"):
-        pip.main(["install", "-U", "validate"])
+        installModule("validate")
 
     if moduleNeedsInstalling("enum"):
-        pip.main(["install", "-U", "enum34"])
+        installModule("enum34")
 
     if moduleNeedsInstalling("datetime"):
-        pip.main(["install", "-U", "DateTime"])
+        installModule("DateTime")
 
 
 
