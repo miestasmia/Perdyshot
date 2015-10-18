@@ -11,6 +11,12 @@ from PyQt4 import QtGui, QtCore
 from gi.repository import Notify
 
 dirname = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(os.path.join(dirname, os.path.pardir))
+
+from lib import wireutils
+wireutils.cprintconf.name = "Perdyshot"
+wireutils.cprintconf.color= wireutils.bcolors.DARKCYAN
+
 cwd = os.getcwd()
 
 ICON = os.path.join(dirname, os.path.pardir, "icon_glow.png")
