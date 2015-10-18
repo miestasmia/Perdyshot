@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 from __future__ import print_function
+
 import imp, os, sys, subprocess
 
 from distutils import spawn
@@ -36,7 +37,10 @@ def hasModule(name):
 
 def checkModule(name):
     installed = hasModule(name)
-    wireutils.cprint("Module {name} installed: {installed}", name = name, installed = installed)
+    if installed:
+        wireutils.cprint("Module {name} installed.", name = name, color=wireutils.bcolors.GREEN)
+    else:
+        wireutils.cprint("Module {name} not installed.", name = name, color=wireutils.bcolors.RED)
 
     return installed
 
@@ -44,7 +48,7 @@ def installModule(name):
     if pip:
         pip.main(["install", "-U", name])
     else:
-        if not readBool("We can't automatically install %s for you. Please install pip to allow this. Do you wish to continue now?" % name):
+        if not readBool("We can't automatically install %s for you.\nPlease install pip to allow this.\nDo you wish to continue now?" % name):
             sys.exit()
 
 def moduleNeedsInstalling(name):
@@ -56,12 +60,15 @@ def moduleNeedsInstalling(name):
         return readBool("Do you wish to install it now?")
 
 def manualInstallNotify(name, tutorial):
-    if not readBool("We can't automatically install %s for you. Please refer to %s to install it manually. Do you wish to continue now?" % (name, tutorial)):
+    if not readBool("We can't automatically install %s for you.\nPlease refer to {blue}{line}%s{endc} to install it manually.\nDo you wish to continue now?" % (name, tutorial)):
         sys.exit()
 
 def checkApplication(name, friendlyName, tutorial):
     installed = spawn.find_executable(name) != None
-    wireutils.cprint("Executable {name} ({readable}) found: {installed} ", name = name, readable = friendlyName, installed = installed)
+    if installed:
+        wireutils.cprint("Executable {name} ({readable}) found.", name = name, readable = friendlyName, color=wireutils.bcolors.GREEN)
+    else:
+        wireutils.cprint("Executable {name} ({readable}) not found.", name = name, readable = friendlyName, color=wireutils.bcolors.RED)
 
     if not installed:
         manualInstallNotify(friendlyName, tutorial)
@@ -85,7 +92,7 @@ try:
         if not readBool("pip isn't installed. Installing missing packages will not be supported. Do you wish to continue?"):
             sys.exit()
 
-    wireutils.cprint("Checking module dependencies for Perdyshot ...")
+    wireutils.cprint("Checking module dependencies for Perdyshot ...\n{bold}----------------------------------------------{endc}\n")
 
 
 
@@ -118,7 +125,7 @@ try:
 
 
     print()
-    wireutils.cprint("Checking application dependencies for Perdyshot ... \n")
+    wireutils.cprint("Checking application dependencies for Perdyshot ...\n{bold}---------------------------------------------------{endc}\n")
 
 
 
@@ -128,4 +135,4 @@ try:
 
 
 except (KeyboardInterrupt, EOFError):
-    print
+    print()
