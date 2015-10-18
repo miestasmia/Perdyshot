@@ -71,8 +71,9 @@ def checkApplication(name, friendlyName, tutorial):
 
 
 try:
-    wireutils.cprint("""Perdyshot dependency checker
-                        ============================\n""",
+    wireutils.cprint("""Perdyshot Dependency Checker
+                  {bold}============================{endc}
+                        """,
                         strip = True)
 
     ROOT = os.geteuid() == 0
