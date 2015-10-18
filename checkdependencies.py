@@ -10,9 +10,8 @@ except:
     pip = None
 
 dirname = os.path.dirname(__file__)
-sys.path.append(os.path.join(dirname, "lib"))
 
-import wireutils
+from lib import wireutils
 wireutils.cprintconf.name = "Perdyshot"
 wireutils.cprintconf.color= wireutils.bcolors.DARKCYAN
 

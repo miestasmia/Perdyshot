@@ -6,13 +6,13 @@ from validate import Validator
 import argparse, os, sys, signal, time, tempfile
 
 dirname = os.path.dirname(__file__)
-sys.path.append(os.path.join(dirname, os.path.pardir, "lib"))
+sys.path.append(os.path.join(dirname, os.path.pardir))
 
-from enum import Enum
-
-import wireutils
+from lib import wireutils
 wireutils.cprintconf.name = "Perdyshot"
 wireutils.cprintconf.color= wireutils.bcolors.DARKCYAN
+
+from enum import Enum
 
 from gtk import gdk
 
