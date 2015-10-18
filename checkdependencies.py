@@ -4,12 +4,14 @@ import imp, os, sys, subprocess
 
 from distutils import spawn
 
-import pip
+try:
+    import pip
+except:
+    pip = None
 
 dirname = os.path.dirname(__file__)
-sys.path.append(os.path.join(dirname, "lib"))
 
-import wireutils
+from lib import wireutils
 wireutils.cprintconf.name = "Perdyshot"
 wireutils.cprintconf.color= wireutils.bcolors.DARKCYAN
 
@@ -21,7 +23,8 @@ def readBool(text):
     elif reply == 'n':
         return False
     else:
-        wireutils.cprint("Invalid option. Please answer y or n for yes or no.")
+        print
+        wireutils.cprint("Invalid option. Please answer y or n for yes or no.\n", color = wireutils.bcolors.RED)
 
     return readBool(text)
 
@@ -34,9 +37,16 @@ def hasModule(name):
 
 def checkModule(name):
     installed = hasModule(name)
-    wireutils.cprint("Module {name} installed: {installed}", name = name, installed = installed)
+    if installed:
+        wireutils.cprint("Module {name} installed.", name = name, color = wireutils.bcolors.GREEN)
+    else:
+        wireutils.cprint("Module {name} not installed.", name = name, color = wireutils.bcolors.RED)
 
     return installed
+
+def installModule(name):
+    if pip:
+        pip.main(["install", "-U", name])
 
 def moduleNeedsInstalling(name):
     installed = checkModule(name)
@@ -47,12 +57,15 @@ def moduleNeedsInstalling(name):
         return readBool("Do you wish to install it now?")
 
 def manualInstallNotify(name, tutorial):
-    if not readBool("We can't automatically install %s for you. Please refer to %s to install it manually. Do you wish to continue now?" % (name, tutorial)):
+    if not readBool("%s can't be automatically installled.\nPlease refer to {blue}{line}%s{endc} to install it manually.\nDo you wish to continue?" % (name, tutorial)):
         sys.exit()
 
 def checkApplication(name, friendlyName, tutorial):
     installed = spawn.find_executable(name) != None
-    wireutils.cprint("Executable {name} ({readable}) found: {installed} ", name = name, readable = friendlyName, installed = installed)
+    if installed:
+        wireutils.cprint("Executable {name} ({readable}) found.", name = name, readable = friendlyName, color=wireutils.bcolors.GREEN)
+    else:
+        wireutils.cprint("Executable {name} ({readable}) not found.", name = name, readable = friendlyName, color=wireutils.bcolors.RED)
 
     if not installed:
         manualInstallNotify(friendlyName, tutorial)
@@ -62,50 +75,56 @@ def checkApplication(name, friendlyName, tutorial):
 
 
 try:
-    wireutils.cprint("""Perdyshot dependency checker
-                        ============================\n""",
+    wireutils.cprint("""Perdyshot Dependency Checker
+                  {bold}============================{endc}
+                        """,
                         strip = True)
 
     ROOT = os.geteuid() == 0
 
     if not ROOT:
-        if not readBool("You're not root. Installing missing packages will not be supported. Do you wish to continue?"):
+        if not readBool("You aren't root.\nInstalling missing packages may not be supported.\nDo you wish to continue?"):
             sys.exit()
+        print
+    if not pip:
+        if not readBool("{bold}pip{endc} isn't installed.\nInstalling missing packages will not be supported.\nDo you wish to continue?"):
+            sys.exit()
+        print
 
-    wireutils.cprint("Checking module dependencies for Perdyshot ...")
+    wireutils.cprint("Checking module dependencies for Perdyshot ...\n{bold}----------------------------------------------{endc}\n")
 
 
 
     if moduleNeedsInstalling("argparse"):
-        pip.main(["install", "-U", "argparse"])
+        installModule("argparse")
 
     if moduleNeedsInstalling("configobj"):
-        pip.main(["install", "-U", "configobj"])
+        installModule("configobj")
 
     if not checkModule("gi"):
         manualInstallNotify("gi", "http://python-gtk-3-tutorial.readthedocs.org/en/latest/install.html")
 
     if moduleNeedsInstalling("gtk"):
-        pip.main(["install", "-U", "PyGTK"])
+        installModule("PyGTK")
 
     if moduleNeedsInstalling("PIL"):
-        pip.main(["install", "-U", "Pillow"])
+        installModule("Pillow")
 
     if not checkModule("PyQt4"):
         manualInstallNotify("PyQt4", "http://pyqt.sourceforge.net/Docs/PyQt4/installation.html")
 
     if moduleNeedsInstalling("validate"):
-        pip.main(["install", "-U", "validate"])
+        installModule("validate")
 
     if moduleNeedsInstalling("enum"):
-        pip.main(["install", "-U", "enum34"])
+        installModule("enum34")
 
     if moduleNeedsInstalling("datetime"):
-        pip.main(["install", "-U", "DateTime"])
+        installModule("DateTime")
 
 
-
-    wireutils.cprint("Checking application dependencies for Perdyshot ... \n")
+    print
+    wireutils.cprint("Checking application dependencies for Perdyshot ...\n{bold}---------------------------------------------------{endc}\n")
 
 
 

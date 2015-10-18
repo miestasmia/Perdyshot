@@ -137,6 +137,10 @@ if supports_color():
 		ORANGE = '\033[38;5;202m'
 		DARKPURPLE = '\033[38;5;53m'
 		BROWN = '\033[38;5;94m'
+		PEACH = '\033[38;5;208m'
+		GOLDEN = '\033[38;5;166m'
+		BOLD = '\033[1m'
+		LINE = '\033[4m'
 		REMAKELINE = '\033[F\033[K'
 		ENDC = '\033[0m'
 		COLORS = {
@@ -159,6 +163,10 @@ if supports_color():
 			"orange": ORANGE,
 			"darkpurple": DARKPURPLE,
 			"brown": BROWN,
+			"peach": PEACH,
+			"golden": GOLDEN,
+			"bold": BOLD,
+			"line": LINE,
 			"endc": ENDC
 		}
 else:
@@ -185,6 +193,10 @@ else:
 		ORANGE = ''
 		DARKPURPLE = ''
 		BROWN = ''
+		PEACH = ''
+		GOLDEN = ''
+		BOLD = ''
+		LINE = ''
 		REMAKELINE = ''
 		ENDC = ''
 		COLORS = {
@@ -207,6 +219,10 @@ else:
 			"orange": ORANGE,
 			"darkpurple": DARKPURPLE,
 			"brown": BROWN,
+			"peach": PEACH,
+			"golden": GOLDEN,
+			"bold": BOLD,
+			"line": LINE,
 			"endc": ENDC
 		}
 

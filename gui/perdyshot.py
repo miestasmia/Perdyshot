@@ -8,9 +8,18 @@ import os, sys, subprocess, signal, tempfile, shutil, pipes, time, locale
 from datetime import datetime
 
 from PyQt4 import QtGui, QtCore
-from gi.repository import Notify
+try:
+    from gi.repository import Notify
+except:
+    Notify = None
 
 dirname = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(os.path.join(dirname, os.path.pardir))
+
+from lib import wireutils
+wireutils.cprintconf.name = "Perdyshot"
+wireutils.cprintconf.color= wireutils.bcolors.DARKCYAN
+
 cwd = os.getcwd()
 
 ICON = os.path.join(dirname, os.path.pardir, "icon_glow.png")
@@ -21,7 +30,8 @@ URL = "https://github.com/Locercus/Perdyshot"
 DATE = os.path.getmtime(os.path.join(dirname, os.path.pardir, ".version"))
 DATE = datetime.fromtimestamp(DATE).strftime(locale.nl_langinfo(locale.D_T_FMT))
 
-Notify.init("Perdyshot")
+if Notify:
+    Notify.init("Perdyshot")
 
 
 config = ConfigObj(os.path.join(dirname, os.path.pardir, 'perdyshot.conf'), encoding = 'UTF8', configspec = os.path.join(dirname, os.path.pardir, 'perdyshot.conf.spec'))
@@ -101,6 +111,8 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
 
         elif options['type'] == 'simple':
             filename = os.path.join(tempfile.gettempdir(), 'perdygui.png')
+            if not os.path.exists(filename):
+                open(filename, "w").close()
 
             args = [
                 '/usr/bin/env', 'python2', os.path.join(dirname, os.path.pardir, 'cli', options['mode'] + '.py'),
@@ -126,7 +138,7 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
             if options['copy']:
                 subprocess.call('xclip -i -sel clip < ' + pipes.quote(filename), shell = True)
 
-            if options['notification']:
+            if options['notification'] and Notify:
                 notification = Notify.Notification.new(
                     options['notificationTitle'],
                     options['notificationDescription'],
