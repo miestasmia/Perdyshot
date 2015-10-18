@@ -111,6 +111,8 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
 
         elif options['type'] == 'simple':
             filename = os.path.join(tempfile.gettempdir(), 'perdygui.png')
+            if not os.path.exists(filename):
+                open(filename, "w").close()
 
             args = [
                 '/usr/bin/env', 'python2', os.path.join(dirname, os.path.pardir, 'cli', options['mode'] + '.py'),
