@@ -24,7 +24,8 @@ def readBool(text):
     elif reply == 'n':
         return False
     else:
-        wireutils.cprint("Invalid option. Please answer y or n for yes or no.")
+        print()
+        wireutils.cprint("Invalid option. Please answer y or n for yes or no.\n", color = wireutils.bcolors.RED)
 
     return readBool(text)
 
@@ -38,18 +39,15 @@ def hasModule(name):
 def checkModule(name):
     installed = hasModule(name)
     if installed:
-        wireutils.cprint("Module {name} installed.", name = name, color=wireutils.bcolors.GREEN)
+        wireutils.cprint("Module {name} installed.", name = name, color = wireutils.bcolors.GREEN)
     else:
-        wireutils.cprint("Module {name} not installed.", name = name, color=wireutils.bcolors.RED)
+        wireutils.cprint("Module {name} not installed.", name = name, color = wireutils.bcolors.RED)
 
     return installed
 
 def installModule(name):
     if pip:
         pip.main(["install", "-U", name])
-    else:
-        if not readBool("We can't automatically install %s for you.\nPlease install pip to allow this.\nDo you wish to continue now?" % name):
-            sys.exit()
 
 def moduleNeedsInstalling(name):
     installed = checkModule(name)
@@ -60,7 +58,7 @@ def moduleNeedsInstalling(name):
         return readBool("Do you wish to install it now?")
 
 def manualInstallNotify(name, tutorial):
-    if not readBool("We can't automatically install %s for you.\nPlease refer to {blue}{line}%s{endc} to install it manually.\nDo you wish to continue now?" % (name, tutorial)):
+    if not readBool("%s can't be automatically installled.\nPlease refer to {blue}{line}%s{endc} to install it manually.\nDo you wish to continue?" % (name, tutorial)):
         sys.exit()
 
 def checkApplication(name, friendlyName, tutorial):
@@ -86,11 +84,13 @@ try:
     ROOT = os.geteuid() == 0
 
     if not ROOT:
-        if not readBool("You're not root. Installing missing packages will not be supported. Do you wish to continue?"):
+        if not readBool("You aren't root.\nInstalling missing packages may not be supported.\nDo you wish to continue?"):
             sys.exit()
+        print()
     if not pip:
-        if not readBool("pip isn't installed. Installing missing packages will not be supported. Do you wish to continue?"):
+        if not readBool("{bold}pip{endc} isn't installed.\nInstalling missing packages will not be supported.\nDo you wish to continue?"):
             sys.exit()
+        print()
 
     wireutils.cprint("Checking module dependencies for Perdyshot ...\n{bold}----------------------------------------------{endc}\n")
 
