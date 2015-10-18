@@ -1,5 +1,4 @@
 #!/usr/bin/env python2
-from __future__ import print_function
 
 import imp, os, sys, subprocess
 
@@ -24,7 +23,7 @@ def readBool(text):
     elif reply == 'n':
         return False
     else:
-        print()
+        print
         wireutils.cprint("Invalid option. Please answer y or n for yes or no.\n", color = wireutils.bcolors.RED)
 
     return readBool(text)
@@ -86,11 +85,11 @@ try:
     if not ROOT:
         if not readBool("You aren't root.\nInstalling missing packages may not be supported.\nDo you wish to continue?"):
             sys.exit()
-        print()
+        print
     if not pip:
         if not readBool("{bold}pip{endc} isn't installed.\nInstalling missing packages will not be supported.\nDo you wish to continue?"):
             sys.exit()
-        print()
+        print
 
     wireutils.cprint("Checking module dependencies for Perdyshot ...\n{bold}----------------------------------------------{endc}\n")
 
@@ -124,7 +123,7 @@ try:
         installModule("DateTime")
 
 
-    print()
+    print
     wireutils.cprint("Checking application dependencies for Perdyshot ...\n{bold}---------------------------------------------------{endc}\n")
 
 
@@ -135,4 +134,4 @@ try:
 
 
 except (KeyboardInterrupt, EOFError):
-    print()
+    print
