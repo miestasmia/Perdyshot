@@ -45,20 +45,21 @@ def checkModule(name):
     return installed
 
 def installModule(name):
-    if pip:
+    if pip and not args.get("dry"):
         pip.main(["install", "-U", name])
 
 def moduleNeedsInstalling(name):
     installed = checkModule(name)
-
-    if installed:
-        return False
-    elif ROOT:
-        return readBool("Do you wish to install it now?")
+    if not args.get("dry"):
+        if installed:
+            return False
+        elif ROOT:
+            return readBool("Do you wish to install it now?")
 
 def manualInstallNotify(name, tutorial):
-    if not readBool("%s can't be automatically installled.\nPlease refer to {blue}{line}%s{endc} to install it manually.\nDo you wish to continue?" % (name, tutorial)):
-        sys.exit()
+    if not args.get("dry"):
+        if not readBool("%s can't be automatically installled.\nPlease refer to {blue}{line}%s{endc} to install it manually.\nDo you wish to continue?" % (name, tutorial)):
+            sys.exit()
 
 def checkApplication(name, friendlyName, tutorial):
     installed = spawn.find_executable(name) != None
@@ -67,7 +68,7 @@ def checkApplication(name, friendlyName, tutorial):
     else:
         wireutils.cprint("Executable {name} ({readable}) not found.", name = name, readable = friendlyName, color=wireutils.bcolors.RED)
 
-    if not installed:
+    if not installed and not args.get("dry"):
         manualInstallNotify(friendlyName, tutorial)
 
 
@@ -82,14 +83,29 @@ try:
 
     ROOT = os.geteuid() == 0
 
-    if not ROOT:
-        if not readBool("You aren't root.\nInstalling missing packages may not be supported.\nDo you wish to continue?"):
-            sys.exit()
-        print
-    if not pip:
-        if not readBool("{bold}pip{endc} isn't installed.\nInstalling missing packages will not be supported.\nDo you wish to continue?"):
-            sys.exit()
-        print
+
+    try:
+        import argparse
+        parser = argparse.ArgumentParser(description = 'Checks the Perdyshot dependencies.')
+        parser.add_argument('-o', '--omit', help="Omit an update step", default="", choices=["module", "app", "m", "a"])
+        parser.add_argument('--dry-run', help="Don't actually do anything", action = 'store_true', dest="dry")
+        parser.add_argument('-q', '--quiet', help="Supress most output", action = 'store_true', dest="quiet")
+        parser.add_argument('--porcelain', help="Supress most output", action = 'store_true', dest="clean")
+
+        args = vars(parser.parse_args())
+    except:
+        wireutils.cprint("Argparse library missing. Will not be able to parse cli arguments.\n", color=wireutils.bcolors.DARKRED)
+        args = {}
+
+    if not args.get("dry"):
+        if not ROOT:
+            if not readBool("You aren't root.\nInstalling missing packages may not be supported.\nDo you wish to continue?"):
+                sys.exit()
+            print
+        if not pip:
+            if not readBool("{bold}pip{endc} isn't installed.\nInstalling missing packages will not be supported.\nDo you wish to continue?"):
+                sys.exit()
+            print
 
     wireutils.cprint("Checking module dependencies for Perdyshot ...\n{bold}----------------------------------------------{endc}\n")
 
