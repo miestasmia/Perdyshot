@@ -9,8 +9,8 @@ dirname = os.path.dirname(__file__)
 sys.path.append(os.path.join(dirname, os.path.pardir))
 
 from lib import wireutils
-wireutils.cprintconf.name = "Perdyshot"
-wireutils.cprintconf.color= wireutils.bcolors.DARKCYAN
+wireutils.color_printing_config.name  = "Perdyshot"
+wireutils.color_printing_config.color = wireutils.ansi_colors.DARKCYAN
 
 from enum import Enum
 
@@ -41,7 +41,7 @@ def main(argSource):
     config = ConfigObj(os.path.join(dirname, os.path.pardir, 'perdyshot.conf'), encoding = 'UTF8', configspec = os.path.join(dirname, os.path.pardir, 'perdyshot.conf.spec'))
     validator = Validator()
     if not config.validate(validator):
-        wireutils.cprint("Invalid configuration file", color = wireutils.bcolors.DARKRED)
+        wireutils.color_print("Invalid configuration file", color = wireutils.ansi_colors.DARKRED)
         sys.exit(1)
 
 
