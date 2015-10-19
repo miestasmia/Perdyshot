@@ -2,9 +2,11 @@
 Wire Segal's utility library. 
 
 Do whatever with it, I seriously couldn't care less.
+
+Runs 2.6+ onwards.
 """
 from __future__ import print_function
-import os, json, time, sys, re
+import os, json, time, sys, re, traceback
 
 def format(string, **kwargs):
 	"""
@@ -13,13 +15,12 @@ def format(string, **kwargs):
 	for arg in kwargs:
 		regex = re.compile(r"\{" + arg + r"\}", re.IGNORECASE)
 		string = regex.sub(str(kwargs[arg]), string)
-	for color in bcolors.COLORS:
+	for color in ansi_colors.COLORS:
 		regex = re.compile(r"\{" + color + r"\}", re.IGNORECASE)
-		string = regex.sub(str(bcolors.COLORS[color]), string)
+		string = regex.sub(str(ansi_colors.COLORS[color]), string)
 	return string
 
-import traceback
-def tbformat(e, text="Traceback (most recent call last):"):
+def format_traceback(e, text="Traceback (most recent call last):"):
 	"""
 	Format a traceback into a printable string.
 	"""
@@ -45,6 +46,37 @@ def tbformat(e, text="Traceback (most recent call last):"):
 
 	return error 
 
+class Registry:
+	def __init__(self):
+		self.events = {}
+	def on(self, tag, func):
+		if tag not in self.events:
+			self.events[tag] = {}
+		funcid = -1
+		for i in self.events[tag]:
+			funcid = max(funcid, i)
+		funcid += 1
+		self.events[tag][funcid] = func
+		return funcid
+	def deregister(self, tag, funcid):
+		if tag in self.events:
+			if funcid in self.events[tag]:
+				del self.events[tag]
+				return True
+		return False
+	def hash(self):
+		return hash(str(self.events))
+	def graft(self, reg):
+		for key in reg.events:
+			if key not in self.events:
+				self.events[key] = {}
+			for oldjob in reg.events[key]:
+				newjob = -1
+				for i in self.events[key]:
+					newjob = max(newjob, i)
+				newjob += 1
+				self.events[key][newjob] = reg.events[key][oldjob]
+
 class Config:
 	"""
 	A JSON read-only loader that will update automatically from `path`.
@@ -53,23 +85,21 @@ class Config:
 		self.path = path
 		self.lastmodtime = os.path.getctime(path) # get the last modified time of the target file
 		self.data = json.load(open(path))
-	def checkreload(self):
-		if os.path.getctime(self.path) > self.lastmodtime: # check the last modified time of the target file
-			self.reload()
 	def reload(self):
-		self.data = json.load(open(self.path))
-		self.lastmodtime = os.path.getctime(self.path)
-	# These are extensions of self.data's methods, except they run self.checkreload.
+		if os.path.getctime(self.path) > self.lastmodtime: # check the last modified time of the target file
+			self.data = json.load(open(self.path))
+			self.lastmodtime = os.path.getctime(self.path)
+
+	# These are extensions of self.data's methods, except they run self.reload.
 	def __getitem__(self, y):
-		self.checkreload()
+		self.reload()
 		return self.data[y]
 	def __contains__(self, key):
-		self.checkreload()
+		self.reload()
 		return key in self.data
 	def get(self, k, d=None):
-		self.checkreload()
+		self.reload()
 		return self.data.get(k, d)
-
 
 def date_time_string(timestamp=None):
 	"""
@@ -98,23 +128,23 @@ def date_time_string(timestamp=None):
 	return s
 
 def supports_color():
-    """
-    Returns True if the running system's terminal supports color, and False
-    otherwise.
-    """
-    plat = sys.platform
-    supported_platform = plat != 'Pocket PC' and (plat != 'win32' or
-                                                  'ANSICON' in os.environ)
-    # isatty is not always implemented, #6223.
-    is_a_tty = hasattr(sys.stdout, 'isatty') and sys.stdout.isatty()
-    if not supported_platform or not is_a_tty:
-        return False
-    return True
+	"""
+	Returns True if the running system's terminal supports color, and False
+	otherwise.
+	"""
+	plat = sys.platform
+	supported_platform = plat != 'Pocket PC' and (plat != 'win32' or
+												  'ANSICON' in os.environ)
+	# isatty is not always implemented, #6223.
+	is_a_tty = hasattr(sys.stdout, 'isatty') and sys.stdout.isatty()
+	if not supported_platform or not is_a_tty:
+		return False
+	return True
 
 
-
-if supports_color():
-	class bcolors: # All color codes
+color_supported = supports_color()
+if color_supported:
+	class ansi_colors: # All color codes
 		"""
 		A helper class containing colors (for pretty printing.)
 		"""
@@ -167,10 +197,11 @@ if supports_color():
 			"golden": GOLDEN,
 			"bold": BOLD,
 			"line": LINE,
+			"remakeline": REMAKELINE,
 			"endc": ENDC
 		}
 else:
-	class bcolors: # No color codes
+	class ansi_colors: # No color codes
 		"""
 		A helper class containing no colors, allowing systems that don't support ANSI to continue running without strange logs.
 		"""
@@ -223,28 +254,29 @@ else:
 			"golden": GOLDEN,
 			"bold": BOLD,
 			"line": LINE,
+			"remakeline": REMAKELINE,
 			"endc": ENDC
 		}
 
 def rainbonify(string):
-	if not supports_color(): return string
+	if not color_supported: return string
 	else:
-		colors = [bcolors.RED, bcolors.ORANGE, bcolors.YELLOW, bcolors.GREEN, 
-				bcolors.BLUE, bcolors.PURPLE, bcolors.DARKPURPLE]
+		colors = [ansi_colors.RED, ansi_colors.ORANGE, ansi_colors.YELLOW, ansi_colors.GREEN, 
+				ansi_colors.BLUE, ansi_colors.PURPLE, ansi_colors.DARKPURPLE]
 		nstring = ""
 		cind = 0
 		for i in string:
 			nstring += colors[cind] + i
 			cind += 1
 			cind %= len(colors)
-		return nstring + bcolors.ENDC
+		return nstring + ansi_colors.ENDC
 
-class colorconf:
+class color_config:
 	"""
-	An object used to configure cprint and cinput.
+	An object used to configure color_print and color_input.
 	"""
 	def __init__(self):
-		self.color = bcolors.WHITE
+		self.color = ansi_colors.WHITE
 		self.name = "Generic"
 	def tag(self):
 		"""
@@ -259,30 +291,32 @@ class colorconf:
 		"""
 		return " "*(26+len(self.name))
 
-cprintconf = colorconf() # create the instance of colorconf used to configure cprint and cinput
+color_printing_config = color_config() # create the instance of color_config used to configure color_print and color_input
 
 lastprinted = None
 
-def cprint(text, color="", strip=False, func=print, add_newline=False, colorconfig = None, **kwargs):
+def color_print(text, color="", strip=False, func=print, add_newline=False, colorconfig = None, **kwargs):
 	"""
 	Pretty print `text`, with `color` as its color, using `func`.
 	If `strip`, then remove whitespace from both sides of each line.
 	"""
 	global lastprinted
 	if not colorconfig:
-		colorconfig = cprintconf
+		colorconfig = color_printing_config
 	if "whitespace" not in kwargs:
 		kwargs["whitespace"] = colorconfig.whitespace()
 	kwargs["color"] = color
 	text = format(str(text), **kwargs)
 
 	# Make sure not to print the same thing twice
-	if text == lastprinted: return
+	if text == lastprinted: 
+		if not color_supported: return
+		print(ansi_colors.REMAKELINE, end="")
 	lastprinted = text
 
 	# Split the text by lines
 	if strip:
-		prints = [i.strip().rstrip() for i in text.split("\n")]
+		prints = [i.strip() for i in text.split("\n")]
 	else:
 		prints = text.split("\n")
 
@@ -302,20 +336,25 @@ def cprint(text, color="", strip=False, func=print, add_newline=False, colorconf
 			  text = i)) # Print all consecutive lines
 			if add_newline: func("\n")
 
-def cinput(text, color="", strip=False, func=raw_input, add_newline=False, colorconfig = None, **kwargs):
+try:
+	agnostic_input = raw_input
+except:
+	agnostic_input = input
+
+def color_input(text, color="", strip=False, func=agnostic_input, add_newline=False, colorconfig = None, **kwargs):
 	"""
 	Pretty print `text`, with `color` as its color. Take input using `func` on the last line.
 	If `strip`, then remove whitespace from both sides of each line.
 	"""
 	if not colorconfig:
-		colorconfig = cprintconf
+		colorconfig = color_printing_config
 	if "whitespace" not in kwargs:
 		kwargs["whitespace"] = colorconfig.whitespace()
 	kwargs["color"] = color
 	text = format(str(text), **kwargs)
 	# Split the text by lines
 	if strip:
-		prints = [i.strip().rstrip() for i in text.split("\n")]
+		prints = [i.strip() for i in text.split("\n")]
 		prints[-1] += " " # Add a spacing to the last line
 	else:
 		prints = text.split("\n")
@@ -349,3 +388,5 @@ def cinput(text, color="", strip=False, func=raw_input, add_newline=False, color
 			color = color,
 		  text = prints[0]))
 		if add_newline: func("\n")
+
+

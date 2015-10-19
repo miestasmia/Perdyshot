@@ -9,8 +9,8 @@ dirname = os.path.dirname(__file__)
 sys.path.append(os.path.join(dirname, os.path.pardir))
 
 from lib import wireutils
-wireutils.cprintconf.name = "Perdyshot"
-wireutils.cprintconf.color= wireutils.bcolors.DARKCYAN
+wireutils.color_printing_config.name  = "Perdyshot"
+wireutils.color_printing_config.color = wireutils.ansi_colors.DARKCYAN
 
 from gtk import gdk
 
@@ -46,12 +46,12 @@ def main(argSource):
     config = ConfigObj(os.path.join(dirname, os.path.pardir, 'perdyshot.conf'), encoding = 'UTF8', configspec = os.path.join(dirname, os.path.pardir, 'perdyshot.conf.spec'))
     validator = Validator()
     if not config.validate(validator):
-        wireutils.cprint("Invalid configuration file", color = wireutils.bcolors.DARKRED)
+        wireutils.color_print("Invalid configuration file", color = wireutils.ansi_colors.DARKRED)
         sys.exit(1)
 
 
 
-    wireutils.cprint("Please select the window to be captured\n")
+    wireutils.color_print("Please select the window to be captured\n")
     time.sleep(args['delay'])
 
     startTime = time.time()
@@ -79,7 +79,7 @@ def main(argSource):
     window = root.get_active_window()
 
     if window == None:
-        wireutils.cprint("Failed to capture window, exiting.", color = wireutils.bcolors.DARKRED)
+        wireutils.color_print("Failed to capture window, exiting.", color = wireutils.ansi_colors.DARKRED)
         sys.exit(1)
 
     # And its geometry
@@ -335,11 +335,11 @@ def main(argSource):
 
     totalTime = time.time()
     print # An empty line.
-    wireutils.cprint("Screenshot time: %.2f seconds" % (partialTime - startTime))
-    wireutils.cprint("Post-processing time: %.2f seconds" % (totalTime - partialTime))
-    wireutils.cprint("Total time: %.2f seconds" % (totalTime - startTime))
+    wireutils.color_print("Screenshot time: %.2f seconds" % (partialTime - startTime))
+    wireutils.color_print("Post-processing time: %.2f seconds" % (totalTime - partialTime))
+    wireutils.color_print("Total time: %.2f seconds" % (totalTime - startTime))
     print
-    wireutils.cprint("Saved as {name}.", name = filename)
+    wireutils.color_print("Saved as {name}.", name = filename)
 
 
 if __name__ == '__main__':
