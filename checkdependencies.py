@@ -87,7 +87,7 @@ try:
     try:
         import argparse
         parser = argparse.ArgumentParser(description = 'Checks the Perdyshot dependencies.')
-        parser.add_argument('-o', '--omit', help="Omit an update step", default="", choices=["module", "app", "m", "a"])
+        parser.add_argument('-o', '--omit', help="Omit an update step", default="", choices=["module", "app", "m", "a"], dest="omit")
         parser.add_argument('--dry-run', help="Don't actually do anything", action = 'store_true', dest="dry")
         parser.add_argument('-q', '--quiet', help="Supress most output", action = 'store_true', dest="quiet")
         parser.add_argument('--porcelain', help="Supress most output", action = 'store_true', dest="clean")
@@ -107,45 +107,45 @@ try:
                 sys.exit()
             print
 
-    wireutils.cprint("Checking module dependencies for Perdyshot ...\n{bold}----------------------------------------------{endc}\n")
+    if args.get("omit") not in ["module", "m"]:
+        wireutils.cprint("Checking module dependencies for Perdyshot ...\n{bold}----------------------------------------------{endc}\n")
+
+        if moduleNeedsInstalling("argparse"):
+            installModule("argparse")
+
+        if moduleNeedsInstalling("configobj"):
+            installModule("configobj")
+
+        if not checkModule("gi"):
+            manualInstallNotify("gi", "http://python-gtk-3-tutorial.readthedocs.org/en/latest/install.html")
+
+        if moduleNeedsInstalling("gtk"):
+            installModule("PyGTK")
+
+        if moduleNeedsInstalling("PIL"):
+            installModule("Pillow")
+
+        if not checkModule("PyQt4"):
+            manualInstallNotify("PyQt4", "http://pyqt.sourceforge.net/Docs/PyQt4/installation.html")
+
+        if moduleNeedsInstalling("validate"):
+            installModule("validate")
+
+        if moduleNeedsInstalling("enum"):
+            installModule("enum34")
+
+        if moduleNeedsInstalling("datetime"):
+            installModule("DateTime")
 
 
+    if not args.get("omit"): 
+        print
+        
+    if args.get("omit") not in ["app", "a"]:
+        wireutils.cprint("Checking application dependencies for Perdyshot ...\n{bold}---------------------------------------------------{endc}\n")
 
-    if moduleNeedsInstalling("argparse"):
-        installModule("argparse")
-
-    if moduleNeedsInstalling("configobj"):
-        installModule("configobj")
-
-    if not checkModule("gi"):
-        manualInstallNotify("gi", "http://python-gtk-3-tutorial.readthedocs.org/en/latest/install.html")
-
-    if moduleNeedsInstalling("gtk"):
-        installModule("PyGTK")
-
-    if moduleNeedsInstalling("PIL"):
-        installModule("Pillow")
-
-    if not checkModule("PyQt4"):
-        manualInstallNotify("PyQt4", "http://pyqt.sourceforge.net/Docs/PyQt4/installation.html")
-
-    if moduleNeedsInstalling("validate"):
-        installModule("validate")
-
-    if moduleNeedsInstalling("enum"):
-        installModule("enum34")
-
-    if moduleNeedsInstalling("datetime"):
-        installModule("DateTime")
-
-
-    print
-    wireutils.cprint("Checking application dependencies for Perdyshot ...\n{bold}---------------------------------------------------{endc}\n")
-
-
-
-    checkApplication("convert", "ImageMagick", "http://www.imagemagick.org/script/binary-releases.php")
-    checkApplication("xclip", "xclip", "https://github.com/milki/xclip/blob/master/INSTALL")
+        checkApplication("convert", "ImageMagick", "http://www.imagemagick.org/script/binary-releases.php")
+        checkApplication("xclip", "xclip", "https://github.com/milki/xclip/blob/master/INSTALL")
 
 
 
