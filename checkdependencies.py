@@ -43,9 +43,9 @@ def checkModule(name):
         elif not args.get("quiet"):
             wireutils.cprint("Module {name} installed.", name = name, color = wireutils.bcolors.GREEN)
     else:
-        if not args.get("quiet") and args.get("clean"):
+        if args.get("clean"):
             print wireutils.format("m {name}: n", name = name)
-        elif not args.get("quiet"):
+        else:
             wireutils.cprint("Module {name} not installed.", name = name, color = wireutils.bcolors.RED)
 
     return installed
@@ -75,9 +75,9 @@ def checkApplication(name, friendlyName, tutorial):
         elif not args.get("quiet"):
             wireutils.cprint("Executable {name} ({readable}) found.", name = name, readable = friendlyName, color=wireutils.bcolors.GREEN)
     else:
-        if not args.get("quiet") and args.get("clean"):
+        if args.get("clean"):
             print wireutils.format("a {name}: n", name = name)
-        elif not args.get("quiet"):
+        else:
             wireutils.cprint("Executable {name} ({readable}) not found.", name = name, readable = friendlyName, color=wireutils.bcolors.RED)
 
     if not installed and not args.get("dry"):
