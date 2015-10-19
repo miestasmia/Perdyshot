@@ -25,6 +25,7 @@ Make sure to check out `perdyshot.conf`, to see if there's anything you want to 
 Perdyshot is free software (as in freedom and free beer) released under the MIT license. See `LICENSE.md` for the full license. :statue_of_liberty:
 
 # Thanks to :thumbsup:
+* [Wire Segal](http://github.com/yrsegal) for doing a bunch of aesthetic changes!
 * [Prof. Erik Ernst](http://www.daimi.au.dk/~eernst/) for helping me figure out alpha compositing and having a tonne of patience.
 * [Tallerkenen](http://tallerknen.deviantart.com/gallery/) for making an awesome icon.
 

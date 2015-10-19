@@ -38,100 +38,131 @@ def hasModule(name):
 def checkModule(name):
     installed = hasModule(name)
     if installed:
-        wireutils.cprint("Module {name} installed.", name = name, color = wireutils.bcolors.GREEN)
+        if not args.get("quiet") and args.get("clean"):
+            print wireutils.format("m {name}: y", name = name)
+        elif not args.get("quiet"):
+            wireutils.cprint("Module {name} installed.", name = name, color = wireutils.bcolors.GREEN)
     else:
-        wireutils.cprint("Module {name} not installed.", name = name, color = wireutils.bcolors.RED)
+        if args.get("clean"):
+            print wireutils.format("m {name}: n", name = name)
+        else:
+            wireutils.cprint("Module {name} not installed.", name = name, color = wireutils.bcolors.RED)
 
     return installed
 
 def installModule(name):
-    if pip:
+    if pip and not args.get("dry") and not args.get("clean"):
         pip.main(["install", "-U", name])
 
 def moduleNeedsInstalling(name):
     installed = checkModule(name)
-
-    if installed:
-        return False
-    elif ROOT:
-        return readBool("Do you wish to install it now?")
+    if not args.get("dry"):
+        if installed or args.get("clean"):
+            return False
+        elif ROOT:
+            return readBool("Do you wish to install it now?")
 
 def manualInstallNotify(name, tutorial):
-    if not readBool("%s can't be automatically installled.\nPlease refer to {blue}{line}%s{endc} to install it manually.\nDo you wish to continue?" % (name, tutorial)):
-        sys.exit()
+    if not args.get("dry") and not args.get("clean"):
+        if not readBool("%s can't be automatically installled.\nPlease refer to {blue}{line}%s{endc} to install it manually.\nDo you wish to continue?" % (name, tutorial)):
+            sys.exit()
 
 def checkApplication(name, friendlyName, tutorial):
     installed = spawn.find_executable(name) != None
     if installed:
-        wireutils.cprint("Executable {name} ({readable}) found.", name = name, readable = friendlyName, color=wireutils.bcolors.GREEN)
+        if not args.get("quiet") and args.get("clean"):
+            print wireutils.format("a {name}: y", name = name)
+        elif not args.get("quiet"):
+            wireutils.cprint("Executable {name} ({readable}) found.", name = name, readable = friendlyName, color=wireutils.bcolors.GREEN)
     else:
-        wireutils.cprint("Executable {name} ({readable}) not found.", name = name, readable = friendlyName, color=wireutils.bcolors.RED)
+        if args.get("clean"):
+            print wireutils.format("a {name}: n", name = name)
+        else:
+            wireutils.cprint("Executable {name} ({readable}) not found.", name = name, readable = friendlyName, color=wireutils.bcolors.RED)
 
-    if not installed:
+    if not installed and not args.get("dry"):
         manualInstallNotify(friendlyName, tutorial)
 
 
 
 
 
-try:
-    wireutils.cprint("""Perdyshot Dependency Checker
-                  {bold}============================{endc}
-                        """,
-                        strip = True)
+if __name__ == "__main__":
+    try:
+        try:
+            import argparse
+            parser = argparse.ArgumentParser(description = 'Checks the Perdyshot dependencies.', usage="%(prog)s [options]")
+            parser.add_argument('-o', '--omit', help="Omit an update step", default="", choices=["module", "app", "m", "a"], dest="omit")
+            parser.add_argument('--dry-run', help="Don't actually do anything", action = 'store_true', dest="dry")
+            parser.add_argument('-q', '--quiet', help="Supress most output", action = 'store_true', dest="quiet")
+            parser.add_argument('--porcelain', help="Machine-readable output (implies --dry-run)", action = 'store_true', dest="clean")
 
-    ROOT = os.geteuid() == 0
+            args = vars(parser.parse_args())
+        except Exception:
+            wireutils.cprint("Argparse library missing. Will not be able to parse cli arguments.\n", color=wireutils.bcolors.DARKRED)
+            args = {}
 
-    if not ROOT:
-        if not readBool("You aren't root.\nInstalling missing packages may not be supported.\nDo you wish to continue?"):
-            sys.exit()
+        if not args.get("quiet") and not args.get("clean"):
+            wireutils.cprint("""Perdyshot Dependency Checker
+                          {bold}============================{endc}
+                                """,
+                                strip = True)
+
+        ROOT = os.geteuid() == 0
+
+        if not args.get("dry") and not args.get("clean"):
+            if not ROOT:
+                if not readBool("You aren't root.\nInstalling missing packages will not be supported.\nDo you wish to continue?"):
+                    sys.exit()
+                print
+            if not pip:
+                if not readBool("{bold}pip{endc} isn't installed.\nInstalling missing packages will not be supported.\nDo you wish to continue?"):
+                    sys.exit()
+                print
+
+        if args.get("omit") not in ["module", "m"]:
+            if not args.get("quiet") and not args.get("clean"):
+                wireutils.cprint("Checking module dependencies for Perdyshot ...\n{bold}----------------------------------------------{endc}\n")
+
+            if moduleNeedsInstalling("argparse"):
+                installModule("argparse")
+
+            if moduleNeedsInstalling("configobj"):
+                installModule("configobj")
+
+            if not checkModule("gi"):
+                manualInstallNotify("gi", "http://python-gtk-3-tutorial.readthedocs.org/en/latest/install.html")
+
+            if moduleNeedsInstalling("gtk"):
+                installModule("PyGTK")
+
+            if moduleNeedsInstalling("PIL"):
+                installModule("Pillow")
+
+            if not checkModule("PyQt4"):
+                manualInstallNotify("PyQt4", "http://pyqt.sourceforge.net/Docs/PyQt4/installation.html")
+
+            if moduleNeedsInstalling("validate"):
+                installModule("validate")
+
+            if moduleNeedsInstalling("enum"):
+                installModule("enum34")
+
+            if moduleNeedsInstalling("datetime"):
+                installModule("DateTime")
+
+
+        if not args.get("omit") and not args.get("quiet") and not args.get("clean"): 
+            print
+
+        if args.get("omit") not in ["app", "a"]:
+            if not args.get("quiet") and not args.get("clean"):
+                wireutils.cprint("Checking application dependencies for Perdyshot ...\n{bold}---------------------------------------------------{endc}\n")
+
+            checkApplication("convert", "ImageMagick", "http://www.imagemagick.org/script/binary-releases.php")
+            checkApplication("xclip", "xclip", "https://github.com/milki/xclip/blob/master/INSTALL")
+
+
+
+    except (KeyboardInterrupt, EOFError):
         print
-    if not pip:
-        if not readBool("{bold}pip{endc} isn't installed.\nInstalling missing packages will not be supported.\nDo you wish to continue?"):
-            sys.exit()
-        print
-
-    wireutils.cprint("Checking module dependencies for Perdyshot ...\n{bold}----------------------------------------------{endc}\n")
-
-
-
-    if moduleNeedsInstalling("argparse"):
-        installModule("argparse")
-
-    if moduleNeedsInstalling("configobj"):
-        installModule("configobj")
-
-    if not checkModule("gi"):
-        manualInstallNotify("gi", "http://python-gtk-3-tutorial.readthedocs.org/en/latest/install.html")
-
-    if moduleNeedsInstalling("gtk"):
-        installModule("PyGTK")
-
-    if moduleNeedsInstalling("PIL"):
-        installModule("Pillow")
-
-    if not checkModule("PyQt4"):
-        manualInstallNotify("PyQt4", "http://pyqt.sourceforge.net/Docs/PyQt4/installation.html")
-
-    if moduleNeedsInstalling("validate"):
-        installModule("validate")
-
-    if moduleNeedsInstalling("enum"):
-        installModule("enum34")
-
-    if moduleNeedsInstalling("datetime"):
-        installModule("DateTime")
-
-
-    print
-    wireutils.cprint("Checking application dependencies for Perdyshot ...\n{bold}---------------------------------------------------{endc}\n")
-
-
-
-    checkApplication("convert", "ImageMagick", "http://www.imagemagick.org/script/binary-releases.php")
-    checkApplication("xclip", "xclip", "https://github.com/milki/xclip/blob/master/INSTALL")
-
-
-
-except (KeyboardInterrupt, EOFError):
-    print
