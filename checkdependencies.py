@@ -12,11 +12,11 @@ except:
 dirname = os.path.dirname(__file__)
 
 from lib import wireutils
-wireutils.cprintconf.name = "Perdyshot"
-wireutils.cprintconf.color= wireutils.bcolors.DARKCYAN
+wireutils.color_printing_config.name  = "Perdyshot"
+wireutils.color_printing_config.color = wireutils.ansi_colors.DARKCYAN
 
 def readBool(text):
-    reply = wireutils.cinput(text + ' (y/n): ')
+    reply = wireutils.color_input(text + ' (y/n): ')
 
     if reply == 'y':
         return True
@@ -24,7 +24,7 @@ def readBool(text):
         return False
     else:
         print
-        wireutils.cprint("Invalid option. Please answer y or n for yes or no.\n", color = wireutils.bcolors.RED)
+        wireutils.color_print("Invalid option. Please answer y or n for yes or no.\n", color = wireutils.ansi_colors.RED)
 
     return readBool(text)
 
@@ -41,12 +41,12 @@ def checkModule(name):
         if not args.get("quiet") and args.get("clean"):
             print wireutils.format("m {name}: y", name = name)
         elif not args.get("quiet"):
-            wireutils.cprint("Module {name} installed.", name = name, color = wireutils.bcolors.GREEN)
+            wireutils.color_print("Module {name} installed.", name = name, color = wireutils.ansi_colors.GREEN)
     else:
         if args.get("clean"):
             print wireutils.format("m {name}: n", name = name)
         else:
-            wireutils.cprint("Module {name} not installed.", name = name, color = wireutils.bcolors.RED)
+            wireutils.color_print("Module {name} not installed.", name = name, color = wireutils.ansi_colors.RED)
 
     return installed
 
@@ -73,12 +73,12 @@ def checkApplication(name, friendlyName, tutorial):
         if not args.get("quiet") and args.get("clean"):
             print wireutils.format("a {name}: y", name = name)
         elif not args.get("quiet"):
-            wireutils.cprint("Executable {name} ({readable}) found.", name = name, readable = friendlyName, color=wireutils.bcolors.GREEN)
+            wireutils.color_print("Executable {name} ({readable}) found.", name = name, readable = friendlyName, color=wireutils.ansi_colors.GREEN)
     else:
         if args.get("clean"):
             print wireutils.format("a {name}: n", name = name)
         else:
-            wireutils.cprint("Executable {name} ({readable}) not found.", name = name, readable = friendlyName, color=wireutils.bcolors.RED)
+            wireutils.color_print("Executable {name} ({readable}) not found.", name = name, readable = friendlyName, color=wireutils.ansi_colors.RED)
 
     if not installed and not args.get("dry"):
         manualInstallNotify(friendlyName, tutorial)
@@ -99,11 +99,11 @@ if __name__ == "__main__":
 
             args = vars(parser.parse_args())
         except Exception:
-            wireutils.cprint("Argparse library missing. Will not be able to parse cli arguments.\n", color=wireutils.bcolors.DARKRED)
+            wireutils.color_print("Argparse library missing. Will not be able to parse cli arguments.\n", color=wireutils.ansi_colors.DARKRED)
             args = {}
 
         if not args.get("quiet") and not args.get("clean"):
-            wireutils.cprint("""Perdyshot Dependency Checker
+            wireutils.color_print("""Perdyshot Dependency Checker
                           {bold}============================{endc}
                                 """,
                                 strip = True)
@@ -122,7 +122,7 @@ if __name__ == "__main__":
 
         if args.get("omit") not in ["module", "m"]:
             if not args.get("quiet") and not args.get("clean"):
-                wireutils.cprint("Checking module dependencies for Perdyshot ...\n{bold}----------------------------------------------{endc}\n")
+                wireutils.color_print("Checking module dependencies for Perdyshot ...\n{bold}----------------------------------------------{endc}\n")
 
             if moduleNeedsInstalling("argparse"):
                 installModule("argparse")
@@ -157,7 +157,7 @@ if __name__ == "__main__":
 
         if args.get("omit") not in ["app", "a"]:
             if not args.get("quiet") and not args.get("clean"):
-                wireutils.cprint("Checking application dependencies for Perdyshot ...\n{bold}---------------------------------------------------{endc}\n")
+                wireutils.color_print("Checking application dependencies for Perdyshot ...\n{bold}---------------------------------------------------{endc}\n")
 
             checkApplication("convert", "ImageMagick", "http://www.imagemagick.org/script/binary-releases.php")
             checkApplication("xclip", "xclip", "https://github.com/milki/xclip/blob/master/INSTALL")
