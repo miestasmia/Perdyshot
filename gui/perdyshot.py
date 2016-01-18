@@ -126,7 +126,7 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
             # Capture the screenshot
             subprocess.call(args)
 
-            # Okay the screenshot has been captures. What do we do now?
+            # Okay the screenshot has been captured. What do we do now?
             if options['file'] != None:
                 newFilename = time.strftime(options['file'])
                 shutil.copyfile(filename, newFilename)
@@ -136,7 +136,7 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
                 subprocess.call(options['program'] % filename, shell = True)
 
             if options['copy']:
-                subprocess.call('xclip -i -sel clip < ' + pipes.quote(filename), shell = True)
+                subprocess.call('xclip -i -sel clip -t image/png < ' + pipes.quote(filename), shell = True)
 
             if options['notification'] and Notify:
                 notification = Notify.Notification.new(
