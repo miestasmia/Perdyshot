@@ -1,7 +1,7 @@
 The MIT License (MIT)
 =====================
 
-Copyright © 2015 Jonatan Nordentoft
+Copyright © 2015 Mia Nordentoft
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
