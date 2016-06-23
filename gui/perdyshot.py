@@ -25,7 +25,7 @@ cwd = os.getcwd()
 ICON = os.path.join(dirname, os.path.pardir, "icon_glow.png")
 LOGO = os.path.join(dirname, os.path.pardir, "icon_plain.png")
 VERSION = 'Perdyshot ' + open(os.path.join(dirname, os.path.pardir, '.version'), 'r').read()
-URL = "https://github.com/Miestasmia/Perdyshot"
+URL = "https://github.com/miestasmia/Perdyshot"
 
 DATE = os.path.getmtime(os.path.join(dirname, os.path.pardir, ".version"))
 DATE = datetime.fromtimestamp(DATE).strftime(locale.nl_langinfo(locale.D_T_FMT))
