@@ -59,7 +59,7 @@ class AboutDialog(QtGui.QWidget):
         image.move((450 - image.sizeHint().width()) / 2, 10)
 
         text = QtGui.QLabel(self)
-        text.setText("<center><b>%s &copy; 2015, 2017 Mia Nordentoft. MIT License</b><br/>Released on %s</center>" % (VERSION, DATE))
+        text.setText("<center><b>%s &copy; 2015-2017 Mia Nordentoft. MIT License</b><br/>Released on %s</center>" % (VERSION, DATE))
         text.move((450 - text.sizeHint().width()) / 2, image.sizeHint().height() + 30)
 
         website = QtGui.QPushButton("Website", self)
